@@ -1,8 +1,8 @@
 import { Router } from "express";
-import { ChatGoogleGenerativeAI } from "@langchain/google-genai";
 import { authMiddleware, AuthRequest } from "../middleware/auth";
 import { byokMiddleware } from "../middleware/byok";
 import { rateLimit } from "../middleware/ratelimit";
+import { setupSSE, sendSSE, sendDone, sendError } from "../services/streaming";
 import {
   classifyIntent,
   runScribeAgent,
@@ -11,12 +11,59 @@ import {
   runVaultAgent,
   runHeraldAgent,
   runVisionAgent,
+  createLLM,
+  streamResponse,
+  VaultOperation,
 } from "@signhify/agents";
 import { globalMemoryStore } from "@signhify/memory";
 import { Thread } from "../models/Thread";
 import { Note } from "../models/Note";
 
 const router: Router = Router();
+
+async function handleVaultOp(
+  op: VaultOperation,
+  userId: string,
+): Promise<string> {
+  if (op.action === "save" && op.key && op.value) {
+    globalMemoryStore.set(userId, op.key, op.value);
+    await Note.create({
+      userId,
+      title: op.key,
+      content: op.value,
+      tags: ["vault"],
+      visibility: "private",
+    });
+    return "";
+  }
+  if (op.action === "retrieve" && op.key) {
+    const entry = globalMemoryStore.get(userId, op.key);
+    return entry
+      ? `Here's what I found:\n\n${entry.value}`
+      : `I couldn't find anything saved under "${op.key}".`;
+  }
+  if (op.action === "list") {
+    const entries = globalMemoryStore.list(userId);
+    return entries.length > 0
+      ? `Here's what you've saved:\n\n${entries
+          .map((e) => `• ${e.key}`)
+          .join("\n")}`
+      : "You haven't saved anything yet.";
+  }
+  if (op.action === "search" && op.key) {
+    const entries = globalMemoryStore.search(userId, op.key);
+    return entries.length > 0
+      ? `Found matches:\n\n${entries
+          .map((e) => `• ${e.key}: ${e.value.slice(0, 100)}`)
+          .join("\n")}`
+      : `No matches found for "${op.key}".`;
+  }
+  if (op.action === "delete" && op.key) {
+    globalMemoryStore.delete(userId, op.key);
+    return `Deleted "${op.key}".`;
+  }
+  return "";
+}
 
 router.post(
   "/chat",
@@ -38,15 +85,8 @@ router.post(
         .json({ error: "Gemini API key required. Add it in Settings." });
     }
 
-    res.setHeader("Content-Type", "text/event-stream");
-    res.setHeader("Cache-Control", "no-cache");
-    res.setHeader("Connection", "keep-alive");
-    res.setHeader("X-Accel-Buffering", "no");
-    res.flushHeaders();
-
-    const send = (data: object) => {
-      res.write(`data: ${JSON.stringify(data)}\n\n`);
-    };
+    setupSSE(res);
+    const send = (data: object) => sendSSE(res, data);
 
     try {
       send({ type: "status", message: "Routing to the right agent..." });
@@ -84,48 +124,11 @@ router.post(
         );
         fullContent = result.response;
         if (result.operation) {
-          const op = result.operation;
-          const userId = req.userId!;
-          if (op.action === "save" && op.key && op.value) {
-            globalMemoryStore.set(userId, op.key, op.value);
-            await Note.create({
-              userId,
-              title: op.key,
-              content: op.value,
-              tags: ["vault"],
-              visibility: "private",
-            });
-          } else if (op.action === "retrieve" && op.key) {
-            const entry = globalMemoryStore.get(userId, op.key);
-            fullContent = entry
-              ? `Here's what I found:\n\n${entry.value}`
-              : `I couldn't find anything saved under "${op.key}".`;
-          } else if (op.action === "list") {
-            const entries = globalMemoryStore.list(userId);
-            fullContent =
-              entries.length > 0
-                ? `Here's what you've saved:\n\n${entries
-                    .map((e) => `• ${e.key}`)
-                    .join("\n")}`
-                : "You haven't saved anything yet.";
-          } else if (op.action === "search" && op.key) {
-            const entries = globalMemoryStore.search(userId, op.key);
-            fullContent =
-              entries.length > 0
-                ? `Found matches:\n\n${entries
-                    .map((e) => `• ${e.key}: ${e.value.slice(0, 100)}`)
-                    .join("\n")}`
-                : `No matches found for "${op.key}".`;
-          } else if (op.action === "delete" && op.key) {
-            globalMemoryStore.delete(userId, op.key);
-            fullContent = `Deleted "${op.key}".`;
+          const vaultResponse = await handleVaultOp(result.operation, req.userId!);
+          if (vaultResponse) {
+            send({ type: "token", token: `\n\n${vaultResponse}` });
+            fullContent += `\n\n${vaultResponse}`;
           }
-        }
-        if (threadId) {
-          await Note.findOneAndUpdate(
-            { userId: req.userId, title: { $regex: "vault" } },
-            { $set: { updatedAt: new Date() } },
-          );
         }
       } else if (agentType === "herald") {
         fullContent = await runHeraldAgent(
@@ -136,21 +139,16 @@ router.post(
       } else if (agentType === "vision") {
         fullContent = await runVisionAgent(
           { task: message, imageDescription: context },
-          { gemini },
+          { gemini, groq },
           onToken,
         );
       } else {
-        const model = new ChatGoogleGenerativeAI({
-          model: "gemini-2.0-flash",
-          apiKey: gemini,
-          streaming: true,
-        });
-        const stream = await model.stream([{ role: "user", content: message }]);
-        for await (const chunk of stream) {
-          const token = chunk.content as string;
-          onToken(token);
-          fullContent += token;
-        }
+        const model = createLLM({ gemini, groq }, "default");
+        fullContent = await streamResponse(
+          model,
+          [{ role: "user", content: message }],
+          onToken,
+        );
       }
 
       if (threadId) {
@@ -169,14 +167,9 @@ router.post(
         });
       }
 
-      send({ type: "done" });
-      res.end();
+      sendDone(res);
     } catch (err: any) {
-      send({
-        type: "error",
-        message: err.message ?? "Agent failed. Check your API keys.",
-      });
-      res.end();
+      sendError(res, err.message ?? "Agent failed. Check your API keys.");
     }
   },
 );

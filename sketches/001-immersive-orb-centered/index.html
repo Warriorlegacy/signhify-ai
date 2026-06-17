@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Signhify AI - Landing</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/three@0.160.0/build/three.min.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemOff, 'Segoe UI', Roboto, sans-serif;
+      background: #0a0a0f;
+      color: #e5e7eb;
+      overflow-x: hidden;
+    }
+    #neural-canvas {
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+    }
+    .glass-panel {
+      background: rgba(17, 24, 39, 0.64);
+      backdrop-filter: blur(24px);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.24);
+    }
+    .glow-cyan { box-shadow: 0 0 48px rgba(6, 182, 212, 0.12); }
+    .glow-gold { box-shadow: 0 0 32px rgba(251, 191, 36, 0.18); }
+    .text-glow { text-shadow: 0 0 24px rgba(6, 182, 212, 0.3); }
+  </style>
+</head>
+<body>
+  <canvas id="neural-canvas"></canvas>
+
+  <!-- Hero Section -->
+  <section class="relative min-h-screen flex flex-col items-center justify-center z-10 px-6">
+    <!-- Neural Core Orb -->
+    <div class="relative mb-12">
+      <div class="w-32 h-32 rounded-full bg-gradient-to-br from-cyan-400/30 to-blue-600/20 glow-cyan flex items-center justify-center">
+        <div class="w-20 h-20 rounded-full bg-gradient-to-br from-cyan-400 to-blue-500 glow-cyan animate-pulse"></div>
+      </div>
+      <div class="absolute -inset-8 rounded-full border border-cyan-400/20 animate-ping"></div>
+    </div>
+
+    <!-- Hero Copy -->
+    <div class="text-center max-w-4xl mb-12">
+      <h1 class="text-6xl md:text-7xl font-extralight tracking-tight mb-6">
+        <span class="text-white">Type less.</span>
+        <br/>
+        <span class="text-cyan-400 text-glow">Orchestrate more.</span>
+      </h1>
+      <p class="text-xl text-gray-400 font-light mb-8 leading-relaxed">
+        One command. A team of AI agents moves. Your workspace, upgraded into a living intelligence layer.
+      </p>
+
+      <!-- Actions -->
+      <div class="flex items-center justify-center gap-4">
+        <button class="px-8 py-4 bg-gradient-to-r from-cyan-500 to-blue-600 text-white font-medium rounded-xl hover:scale-105 transition-transform">
+          Launch Command Center
+        </button>
+        <button class="px-8 py-4 glass-panel text-cyan-300 rounded-xl hover:bg-white/10 transition-colors">
+          Watch Demo
+        </button>
+      </div>
+    </div>
+
+    <!-- Live UI Preview -->
+    <div class="glass-panel rounded-2xl p-6 max-w-4xl w-full">
+      <div class="flex items-center gap-3 mb-4">
+        <div class="w-2 h-2 bg-cyan-400 rounded-full animate-pulse"></div>
+        <span class="text-sm text-gray-400 font-mono">AGENT ORCHESTRATION ACTIVE</span>
+      </div>
+      <pre class="text-xs font-mono text-left bg-black/40 rounded-lg p-4 overflow-x-auto">
+<span class="text-cyan-400">nexus.route()</span> → <span class="text-blue-400">scribe.write()</span>, <span class="text-amber-400">scout.research()</span>
+<span class="text-emerald-400">✓</span> Draft created • <span class="text-emerald-400">✓</span> Sources found • <span class="text-cyan-400">→</span> Forging code...
+<span class="text-gray-500">// 2 agents • 3 sources • 1 orchestration • 0 keystrokes</span></pre>
+    </div>
+  </section>
+
+  <!-- Features Section -->
+  <section class="relative z-10 py-24 px-6">
+    <div class="max-w-6xl mx-auto">
+      <h2 class="text-4xl font-light text-center mb-16">Agentic Intelligence</h2>
+      <div class="grid md:grid-cols-3 gap-8">
+        <div class="glass-panel rounded-2xl p-8 text-center hover:scale-105 transition-transform">
+          <div class="w-16 h-16 mx-auto mb-4 rounded-xl bg-gradient-to-br from-cyan-400 to-blue-600"></div>
+          <h3 class="text-xl font-medium mb-2">Nexus</h3>
+          <p class="text-gray-400 text-sm">Orchestrator/router powered by Gemini</p>
+        </div>
+        <div class="glass-panel rounded-2xl p-8 text-center hover:scale-105 transition-transform">
+          <div class="w-16 h-16 mx-auto mb-4 rounded-xl bg-gradient-to-br from-amber-400 to-orange-600"></div>
+          <h3 class="text-xl font-medium mb-2">Scribe</h3>
+          <p class="text-gray-400 text-sm">Writing & summaries</p>
+        </div>
+        <div class="glass-panel rounded-2xl p-8 text-center hover:scale-105 transition-transform">
+          <div class="w-16 h-16 mx-auto mb-4 rounded-xl bg-gradient-to-br from-emerald-400 to-teal-600"></div>
+          <h3 class="text-xl font-medium mb-2">Scout</h3>
+          <p class="text-gray-400 text-sm">Web research with sources</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <script>
+    // Simple neural particles
+    const canvas = document.getElementById('neural-canvas');
+    const scene = new THREE.Scene();
+    const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+    const renderer = new THREE.WebGLRenderer({ canvas, alpha: true });
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+
+    // Create particle field
+    const geometry = new THREE.SphereGeometry(0.1, 8, 8);
+    const material = new THREE.MeshBasicMaterial({ 
+      color: 0x06b6d4, 
+      transparent: true, 
+      opacity: 0.3 
+    });
+    const particles = [];
+    for (let i = 0; i < 100; i++) {
+      const particle = new THREE.Mesh(geometry, material.clone());
+      particle.position.set(
+        (Math.random() - 0.5) * 100,
+        (Math.random() - 0.5) * 100,
+        (Math.random() - 0.5) * 100
+      );
+      scene.add(particle);
+      particles.push(particle);
+    }
+
+    camera.position.z = 50;
+
+    function animate() {
+      requestAnimationFrame(animate);
+      particles.forEach(p => {
+        p.position.y += 0.01;
+        if (p.position.y > 50) p.position.y = -50;
+      });
+      renderer.render(scene, camera);
+    }
+    animate();
+  </script>
+</body>
+</html>

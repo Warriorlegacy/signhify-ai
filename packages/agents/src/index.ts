@@ -12,3 +12,4 @@ export { runHeraldAgent } from "./herald";
 export type { HeraldInput } from "./herald";
 export { runVisionAgent } from "./vision";
 export type { VisionInput } from "./vision";
+export { createLLM, streamResponse } from "./shared";

@@ -1,5 +1,4 @@
-import { ChatGoogleGenerativeAI } from "@langchain/google-genai";
-import { ChatGroq } from "@langchain/groq";
+import { createLLM, streamResponse } from "../shared";
 
 export interface VaultInput {
   task: string;
@@ -17,19 +16,14 @@ export async function runVaultAgent(
   apiKeys: { gemini?: string; groq?: string },
   onToken: (token: string) => void,
 ): Promise<{ response: string; operation?: VaultOperation }> {
-  const model = apiKeys.groq
-    ? new ChatGroq({
-        model: "llama-3.3-70b-versatile",
-        apiKey: apiKeys.groq,
-        streaming: true,
-      })
-    : new ChatGoogleGenerativeAI({
-        model: "gemini-2.0-flash",
-        apiKey: apiKeys.gemini!,
-        streaming: true,
-      });
+  const model = createLLM(apiKeys, "default");
 
-  const systemPrompt = `You are Vault, the memory and knowledge agent of Signhify AI.
+  const fullResponse = await streamResponse(
+    model,
+    [
+      {
+        role: "system",
+        content: `You are Vault, the memory and knowledge agent of Signhify AI.
 You manage saved notes, preferences, and contextual memory for the user.
 
 When the user wants to SAVE something, respond with:
@@ -53,19 +47,12 @@ When the user wants to DELETE something, respond with:
 ---ACTION: delete
 ---KEY: <key to delete>
 
-For general conversation about memory/notes, just respond conversationally without an action block.`;
-
-  const stream = await model.stream([
-    { role: "system", content: systemPrompt },
-    { role: "user", content: input.task },
-  ]);
-
-  let fullResponse = "";
-  for await (const chunk of stream) {
-    const token = chunk.content as string;
-    onToken(token);
-    fullResponse += token;
-  }
+For general conversation about memory/notes, just respond conversationally without an action block.`,
+      },
+      { role: "user", content: input.task },
+    ],
+    onToken,
+  );
 
   const op = parseOperation(fullResponse);
   return {

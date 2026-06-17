@@ -3,11 +3,9 @@ import { z } from "zod";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import { User } from "../models/User";
-import { authMiddleware, AuthRequest } from "../middleware/auth";
+import { authMiddleware, AuthRequest, JWT_SECRET } from "../middleware/auth";
 
 const router: Router = Router();
-const JWT_SECRET =
-  process.env.JWT_SECRET ?? "signhify-dev-secret-change-in-prod";
 const JWT_REFRESH_SECRET =
   process.env.JWT_REFRESH_SECRET ?? "signhify-dev-refresh-secret";
 

@@ -1,4 +1,10 @@
-import { MemoryEntry } from ".";
+export interface MemoryEntry {
+  id: string;
+  userId: string;
+  key: string;
+  value: string;
+  timestamp: Date;
+}
 
 export class MemoryStore {
   private store = new Map<string, Map<string, MemoryEntry>>();

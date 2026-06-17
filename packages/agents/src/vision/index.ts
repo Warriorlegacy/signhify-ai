@@ -1,4 +1,4 @@
-import { ChatGoogleGenerativeAI } from "@langchain/google-genai";
+import { createLLM, runAgentWithStreaming } from "../shared";
 
 export interface VisionInput {
   task: string;
@@ -7,16 +7,18 @@ export interface VisionInput {
 
 export async function runVisionAgent(
   input: VisionInput,
-  apiKeys: { gemini: string },
+  apiKeys: { gemini?: string; groq?: string },
   onToken: (token: string) => void,
 ) {
-  const model = new ChatGoogleGenerativeAI({
-    model: "gemini-2.0-flash",
-    apiKey: apiKeys.gemini,
-    streaming: true,
-  });
+  const model = createLLM(apiKeys, "default");
 
-  const systemPrompt = `You are Vision, the image intelligence agent of Signhify AI.
+  const userMessage = input.imageDescription
+    ? `Task: ${input.task}\n\nImage context: ${input.imageDescription}`
+    : input.task;
+
+  return runAgentWithStreaming(
+    model,
+    `You are Vision, the image intelligence agent of Signhify AI.
 You analyze images, extract text (OCR), read screenshots, and describe visual content.
 
 When given an image description or analysis task:
@@ -25,22 +27,8 @@ When given an image description or analysis task:
 3. If describing a scene, be objective and specific
 4. If asked about charts/diagrams, explain the data visually
 
-Note: You are working with image descriptions provided by the user. For actual image file analysis, the user would need to upload the image.`;
-
-  const userMessage = input.imageDescription
-    ? `Task: ${input.task}\n\nImage context: ${input.imageDescription}`
-    : input.task;
-
-  const stream = await model.stream([
-    { role: "system", content: systemPrompt },
-    { role: "user", content: userMessage },
-  ]);
-
-  let fullResponse = "";
-  for await (const chunk of stream) {
-    const token = chunk.content as string;
-    onToken(token);
-    fullResponse += token;
-  }
-  return fullResponse;
+Note: You are working with image descriptions provided by the user. For actual image file analysis, the user would need to upload the image.`,
+    userMessage,
+    onToken,
+  );
 }

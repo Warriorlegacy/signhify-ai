@@ -1,28 +1,23 @@
 import { describe, it, expect, afterEach, vi, beforeEach } from "vitest";
-import {
-  setMemory,
-  getMemory,
-  deleteMemory,
-  listMemory,
-  clearUserMemory,
-  MemoryEntry,
-} from "../index";
+import { MemoryStore } from "../store";
 
-describe("Memory Store (functional)", () => {
+describe("Memory Store (class-based)", () => {
+  let store: MemoryStore;
   const userId = "test-user";
 
   beforeEach(() => {
+    store = new MemoryStore();
     vi.useFakeTimers();
   });
 
   afterEach(() => {
-    clearUserMemory(userId);
+    store.clear(userId);
     vi.useRealTimers();
   });
 
   it("should store and retrieve a value", () => {
-    setMemory(userId, "preferred_model", "gemini-flash");
-    const entry = getMemory(userId, "preferred_model");
+    store.set(userId, "preferred_model", "gemini-flash");
+    const entry = store.get(userId, "preferred_model");
     expect(entry).toBeDefined();
     expect(entry!.key).toBe("preferred_model");
     expect(entry!.value).toBe("gemini-flash");
@@ -30,37 +25,44 @@ describe("Memory Store (functional)", () => {
   });
 
   it("should return undefined for missing key", () => {
-    const entry = getMemory(userId, "nonexistent");
+    const entry = store.get(userId, "nonexistent");
     expect(entry).toBeUndefined();
   });
 
   it("should overwrite existing value", () => {
-    setMemory(userId, "key", "value1");
-    setMemory(userId, "key", "value2");
-    expect(getMemory(userId, "key")!.value).toBe("value2");
+    store.set(userId, "key", "value1");
+    store.set(userId, "key", "value2");
+    expect(store.get(userId, "key")!.value).toBe("value2");
   });
 
   it("should delete a key", () => {
-    setMemory(userId, "temp", "data");
-    deleteMemory(userId, "temp");
-    expect(getMemory(userId, "temp")).toBeUndefined();
+    store.set(userId, "temp", "data");
+    store.delete(userId, "temp");
+    expect(store.get(userId, "temp")).toBeUndefined();
   });
 
   it("should list all entries sorted by recency", () => {
-    setMemory(userId, "a", "first");
+    store.set(userId, "a", "first");
     vi.advanceTimersByTime(1);
-    setMemory(userId, "b", "second");
+    store.set(userId, "b", "second");
     vi.advanceTimersByTime(1);
-    setMemory(userId, "c", "third");
-    const list = listMemory(userId);
+    store.set(userId, "c", "third");
+    const list = store.list(userId);
     expect(list).toHaveLength(3);
     expect(list[0].key).toBe("c");
   });
 
   it("should clear all entries for a user", () => {
-    setMemory(userId, "x", "1");
-    setMemory(userId, "y", "2");
-    clearUserMemory(userId);
-    expect(listMemory(userId)).toHaveLength(0);
+    store.set(userId, "x", "1");
+    store.set(userId, "y", "2");
+    store.clear(userId);
+    expect(store.list(userId)).toHaveLength(0);
+  });
+
+  it("should isolate data between users", () => {
+    store.set("alice", "key", "alice-data");
+    store.set("bob", "key", "bob-data");
+    expect(store.get("alice", "key")!.value).toBe("alice-data");
+    expect(store.get("bob", "key")!.value).toBe("bob-data");
   });
 });
