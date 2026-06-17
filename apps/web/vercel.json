@@ -1,8 +1,9 @@
 {
   "buildCommand": "pnpm --filter @signhify/web build",
   "outputDirectory": "dist",
-  "installCommand": "pnpm install",
+  "installCommand": "npx pnpm@10 install",
   "framework": "vite",
+
   "rewrites": [
     {
       "source": "/(.*)",
