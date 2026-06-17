@@ -41,6 +41,7 @@ COPY server/package.json server/
 COPY packages/types/package.json packages/types/
 COPY packages/memory/package.json packages/memory/
 COPY packages/agents/package.json packages/agents/
+COPY apps/web/package.json apps/web/
 RUN pnpm install --prod --frozen-lockfile
 
 ENV NODE_ENV=production
