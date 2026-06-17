@@ -27,16 +27,21 @@ RUN pnpm --filter @signhify/types build && \
 
 FROM base AS runner
 RUN apk add --no-cache curl
+
+# Copy compiled output
 COPY --from=build /app/server/dist /app/server/dist
-COPY --from=build /app/server/package.json /app/server/package.json
 COPY --from=build /app/packages/types/dist /app/packages/types/dist
-COPY --from=build /app/packages/types/package.json /app/packages/types/package.json
 COPY --from=build /app/packages/memory/dist /app/packages/memory/dist
-COPY --from=build /app/packages/memory/package.json /app/packages/memory/package.json
 COPY --from=build /app/packages/agents/dist /app/packages/agents/dist
-COPY --from=build /app/packages/agents/package.json /app/packages/agents/package.json
 COPY --from=build /app/apps/web/dist /app/apps/web/dist
-COPY --from=build /app/node_modules /app/node_modules
+
+# Install production deps with pnpm (avoids broken symlinks from COPY)
+COPY pnpm-lock.yaml pnpm-workspace.yaml package.json ./
+COPY server/package.json server/
+COPY packages/types/package.json packages/types/
+COPY packages/memory/package.json packages/memory/
+COPY packages/agents/package.json packages/agents/
+RUN pnpm install --prod --frozen-lockfile
 
 ENV NODE_ENV=production
 ENV PORT=4000
