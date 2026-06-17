@@ -1,0 +1,12 @@
+node_modules
+.git
+.gitignore
+*.md
+.turbo
+node_modules
+dist
+.env.local
+.gitkeep
+docker-compose*.yml
+.pnpm-store
+*.tsbuildinfo

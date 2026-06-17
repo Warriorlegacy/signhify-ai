@@ -1,0 +1,33 @@
+services:
+  mongo:
+    image: mongo:7
+    restart: unless-stopped
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo_data:/data/db
+    healthcheck:
+      test: echo 'db.runCommand("ping").ok' | mongosh --quiet
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    ports:
+      - "80:4000"
+    depends_on:
+      mongo:
+        condition: service_healthy
+    env_file:
+      - server/.env
+    environment:
+      - MONGODB_URI=mongodb://mongo:27017/signhify
+      - PORT=4000
+      - NODE_ENV=production
+
+volumes:
+  mongo_data:
