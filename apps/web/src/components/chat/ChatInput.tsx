@@ -5,9 +5,10 @@ interface ChatInputProps {
   onSend: (message: string) => void;
   isStreaming: boolean;
   disabled?: boolean;
+  onVoiceClick?: () => void;
 }
 
-export function ChatInput({ onSend, isStreaming, disabled }: ChatInputProps) {
+export function ChatInput({ onSend, isStreaming, disabled, onVoiceClick }: ChatInputProps) {
   const [input, setInput] = useState("");
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
@@ -42,6 +43,7 @@ export function ChatInput({ onSend, isStreaming, disabled }: ChatInputProps) {
         <button 
           type="button"
           disabled={isStreaming || disabled}
+          onClick={onVoiceClick}
           className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl text-slate-500 hover:text-cyan-teal hover:bg-cyan-teal/10 transition-colors disabled:opacity-50"
         >
           <Mic className="h-5 w-5" />

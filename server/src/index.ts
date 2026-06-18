@@ -2,47 +2,104 @@ import "dotenv/config";
 import express from "express";
 import cors from "cors";
 import helmet from "helmet";
-import morgan from "morgan";
 import mongoose from "mongoose";
 import cookieParser from "cookie-parser";
 import path from "path";
+import pinoHttp from "pino-http";
+import morgan from "morgan";
+
+import { validateEnv } from "./lib/env";
+import { createContextLogger } from "./lib/logger";
+import { connectRedis, disconnectRedis } from "./lib/redis";
+import { initTelemetry, recordRequest } from "./lib/telemetry";
 
 import authRoutes from "./routes/auth";
 import agentRoutes from "./routes/agents";
 import threadRoutes from "./routes/threads";
 import userRoutes from "./routes/users";
 import noteRoutes from "./routes/notes";
+import skillRoutes from "./routes/skills";
+import scheduleRoutes from "./routes/schedule";
+import profileRoutes from "./routes/profile";
+import memoryRoutes from "./routes/memory";
+import telegramRoutes, { initTelegramBot } from "./routes/telegram";
+import discordRoutes, { initDiscordBot } from "./routes/discord";
 import { errorHandler } from "./middleware/errorHandler";
+import { initScheduler } from "./services/scheduler";
+import { initProfileRegeneration } from "./services/profile-regeneration";
+
+const log = createContextLogger("server");
 
 const app = express();
-const PORT = process.env.PORT ?? 3001;
-const MONGODB_URI =
-  process.env.MONGODB_URI ?? "mongodb://localhost:27017/signhify";
-const CORS_ORIGIN = process.env.CORS_ORIGIN ?? "http://localhost:5173";
-const NODE_ENV = process.env.NODE_ENV ?? "development";
+
+// Validate env on startup (fails fast on missing required vars)
+const env = validateEnv();
 
 app.use(helmet({ contentSecurityPolicy: false }));
-app.use(cors({ origin: CORS_ORIGIN, credentials: true }));
-app.use(morgan("dev"));
+app.use(cors({ origin: env.CORS_ORIGIN, credentials: true }));
 app.use(express.json({ limit: "10mb" }));
 app.use(cookieParser());
 
-if (NODE_ENV === "production") {
+// Initialize telemetry
+initTelemetry();
+
+// Request metrics middleware
+app.use((req, res, next) => {
+  res.on("finish", () => {
+    recordRequest(req.method, req.path, res.statusCode);
+  });
+  next();
+});
+
+// Structured request logging in production
+if (env.NODE_ENV === "production") {
+  app.use(
+    pinoHttp({
+      logger: log as any,
+      autoLogging: {
+        ignore: (req: any) => req.url === "/api/health",
+      },
+    }),
+  );
+} else {
+  app.use(morgan("dev"));
+}
+
+if (env.NODE_ENV === "production") {
   const webDist = path.join(__dirname, "../../apps/web/dist");
   app.use(express.static(webDist));
 }
 
+// API routes
 app.use("/api/auth", authRoutes);
 app.use("/api/agents", agentRoutes);
 app.use("/api/threads", threadRoutes);
 app.use("/api/users", userRoutes);
 app.use("/api/notes", noteRoutes);
+app.use("/api/skills", skillRoutes);
+app.use("/api/schedule", scheduleRoutes);
+app.use("/api/profile", profileRoutes);
+app.use("/api/memory", memoryRoutes);
+app.use("/api/gateways/telegram", telegramRoutes);
+app.use("/api/gateways/discord", discordRoutes);
 
 app.get("/api/health", (_req, res) => {
-  res.json({ status: "ok", timestamp: new Date().toISOString() });
+  res.json({
+    status: "ok",
+    timestamp: new Date().toISOString(),
+    version: "3.0.0",
+    features: [
+      "multi-llm",
+      "persistent-memory",
+      "skill-generation",
+      "scheduling",
+      "provider-abstraction",
+      "redis-cache",
+    ],
+  });
 });
 
-if (NODE_ENV === "production") {
+if (env.NODE_ENV === "production") {
   const webDist = path.join(__dirname, "../../apps/web/dist");
   app.get("*", (_req, res) => {
     res.sendFile(path.join(webDist, "index.html"));
@@ -51,30 +108,61 @@ if (NODE_ENV === "production") {
 
 app.use(errorHandler);
 
-function validateEnv() {
-  const required = ["JWT_SECRET", "MONGODB_URI"];
-  const missing = required.filter((key) => !process.env[key]);
-  if (missing.length > 0) {
-    console.error(`Missing required env vars: ${missing.join(", ")}`);
+async function start() {
+  try {
+    // Connect to MongoDB
+    await mongoose.connect(env.MONGODB_URI);
+    log.info("Connected to MongoDB");
+
+    // Connect to Redis (optional, graceful degradation)
+    const redisOk = await connectRedis();
+    if (redisOk) {
+      log.info("Redis cache enabled");
+    } else {
+      log.warn("Redis not available — running without cache");
+    }
+
+    // Initialize cron scheduler after DB is ready
+    await initScheduler();
+    log.info("Scheduler initialized");
+
+    // Initialize weekly profile regeneration
+    initProfileRegeneration();
+    log.info("Profile regeneration cron initialized");
+
+    // Initialize gateways
+    initTelegramBot();
+    initDiscordBot();
+
+    app.listen(env.PORT, () => {
+      log.info(
+        {
+          port: env.PORT,
+          env: env.NODE_ENV,
+          features: ["multi-llm", "memory", "skills", "scheduling", "redis"],
+        },
+        "Signhify AI v3 server running",
+      );
+    });
+  } catch (error) {
+    log.error({ err: error }, "Failed to start server");
     process.exit(1);
-  }
-  if (NODE_ENV === "production" && !CORS_ORIGIN.startsWith("http")) {
-    console.warn("Warning: CORS_ORIGIN looks misconfigured for production");
   }
 }
 
-async function start() {
-  validateEnv();
-  try {
-    await mongoose.connect(MONGODB_URI);
-    console.log("Connected to MongoDB");
-    app.listen(PORT, () => {
-      console.log(`Signhify AI server running on port ${PORT} (${NODE_ENV})`);
-    });
-  } catch (error) {
-    console.error("Failed to start server:", error);
-    process.exit(1);
-  }
-}
+// Graceful shutdown
+process.on("SIGTERM", async () => {
+  log.info("SIGTERM received, shutting down...");
+  await disconnectRedis();
+  await mongoose.disconnect();
+  process.exit(0);
+});
+
+process.on("SIGINT", async () => {
+  log.info("SIGINT received, shutting down...");
+  await disconnectRedis();
+  await mongoose.disconnect();
+  process.exit(0);
+});
 
 start();

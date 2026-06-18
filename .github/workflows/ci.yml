@@ -1,4 +1,4 @@
-name: CI
+name: CI/CD
 
 on:
   push:
@@ -11,7 +11,8 @@ env:
   PNPM_VERSION: "9.15.0"
 
 jobs:
-  check:
+  quality:
+    name: Quality Checks
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -32,3 +33,89 @@ jobs:
       - run: pnpm lint
 
       - run: pnpm build
+
+      - run: pnpm test
+
+  deploy-server:
+    name: Deploy Server (Render)
+    needs: [quality]
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Check for server-side changes
+        id: changed
+        uses: dorny/paths-filter@v3.0.2
+        with:
+          filters: |
+            server:
+              - 'server/**'
+              - 'packages/**'
+              - 'Dockerfile'
+              - 'turbo.json'
+              - 'tsconfig.base.json'
+              - 'pnpm-lock.yaml'
+              - 'pnpm-workspace.yaml'
+              - 'package.json'
+
+      - name: Trigger Render Deploy
+        if: steps.changed.outputs.server == 'true'
+        run: |
+          curl -s -X POST \
+            "https://api.render.com/v1/services/${{ secrets.RENDER_SERVICE_ID }}/deploys" \
+            -H "Authorization: Bearer ${{ secrets.RENDER_API_KEY }}" \
+            -H "Content-Type: application/json" \
+            -d '{}'
+
+  deploy-web:
+    name: Deploy Web (Vercel)
+    needs: [quality]
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Check for web-side changes
+        id: changed
+        uses: dorny/paths-filter@v3.0.2
+        with:
+          filters: |
+            web:
+              - 'apps/web/**'
+              - 'turbo.json'
+              - 'tsconfig.base.json'
+              - 'pnpm-lock.yaml'
+              - 'pnpm-workspace.yaml'
+              - 'package.json'
+
+      - uses: pnpm/action-setup@v4
+        if: steps.changed.outputs.web == 'true'
+        with:
+          version: ${{ env.PNPM_VERSION }}
+
+      - uses: actions/setup-node@v4
+        if: steps.changed.outputs.web == 'true'
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: "pnpm"
+
+      - run: pnpm install --frozen-lockfile
+        if: steps.changed.outputs.web == 'true'
+
+      - run: pnpm --filter @signhify/types build && pnpm --filter @signhify/web build
+        if: steps.changed.outputs.web == 'true'
+
+      - name: Deploy to Vercel
+        if: steps.changed.outputs.web == 'true'
+        uses: amondnet/vercel-action@v25
+        with:
+          vercel-token: ${{ secrets.VERCEL_TOKEN }}
+          vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
+          vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
+          vercel-args: "--prod"
+          working-directory: apps/web

@@ -1,5 +1,5 @@
 FROM node:20-alpine AS base
-RUN corepack enable && corepack prepare pnpm@9.15.0 --activate
+RUN corepack enable && corepack prepare pnpm@10.10.0 --activate
 WORKDIR /app
 
 FROM base AS deps
@@ -47,6 +47,8 @@ RUN pnpm install --prod --frozen-lockfile
 ENV NODE_ENV=production
 ENV PORT=4000
 EXPOSE 4000
-HEALTHCHECK --interval=30s --timeout=5s --start-period=10s --retries=3 \
+
+HEALTHCHECK --interval=30s --timeout=5s --start-period=15s --retries=3 \
   CMD curl -f http://localhost:$PORT/api/health || exit 1
+
 CMD ["node", "server/dist/index.js"]

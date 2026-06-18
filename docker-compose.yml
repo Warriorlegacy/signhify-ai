@@ -12,6 +12,20 @@ services:
       timeout: 5s
       retries: 5
 
+  redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    command: redis-server --maxmemory 64mb --maxmemory-policy allkeys-lru
+
   app:
     build:
       context: .
@@ -22,12 +36,16 @@ services:
     depends_on:
       mongo:
         condition: service_healthy
+      redis:
+        condition: service_healthy
     env_file:
       - server/.env
     environment:
       - MONGODB_URI=mongodb://mongo:27017/signhify
+      - REDIS_URL=redis://redis:6379
       - PORT=4000
       - NODE_ENV=production
 
 volumes:
   mongo_data:
+  redis_data:

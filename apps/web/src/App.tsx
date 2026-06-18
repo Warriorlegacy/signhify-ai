@@ -2,10 +2,8 @@ import { useState, useEffect } from "react";
 import { useAuthStore } from "./stores/authStore";
 import { useSettingsStore } from "./stores/settingsStore";
 import { AuthView } from "./views/Auth";
-import { Dashboard } from "./views/Dashboard";
+import { Dashboard, View } from "./views/Dashboard";
 import { ErrorBoundary } from "./components/shared/ErrorBoundary";
-
-type View = "chat" | "settings";
 
 function AppContent() {
   const { isAuthenticated, loadFromStorage } = useAuthStore();

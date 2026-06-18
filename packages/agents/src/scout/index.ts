@@ -1,5 +1,5 @@
 import { TavilySearchResults } from "@langchain/community/tools/tavily_search";
-import { ChatGoogleGenerativeAI } from "@langchain/google-genai";
+import { createLLM } from "../shared";
 
 export interface ScoutInput {
   query: string;
@@ -13,34 +13,49 @@ export interface ScoutResult {
 
 export async function runScoutAgent(
   input: ScoutInput,
-  apiKeys: { gemini: string; tavily: string },
+  apiKeys: {
+    gemini?: string;
+    groq?: string;
+    openai?: string;
+    anthropic?: string;
+    openrouter?: string;
+    tavily?: string;
+  },
   onToken: (token: string) => void,
 ): Promise<ScoutResult> {
-  const searchTool = new TavilySearchResults({
-    apiKey: apiKeys.tavily,
-    maxResults: input.maxResults ?? 5,
-  });
+  let results: Array<{ title: string; url: string; content: string }> = [];
 
-  const rawResults = await searchTool.invoke(input.query);
-  const results = JSON.parse(rawResults) as Array<{
-    title: string;
-    url: string;
-    content: string;
-  }>;
+  if (apiKeys.tavily) {
+    try {
+      const searchTool = new TavilySearchResults({
+        apiKey: apiKeys.tavily,
+        maxResults: input.maxResults ?? 5,
+      });
 
-  const sourcesContext = results
-    .map((r, i) => `[${i + 1}] ${r.title}\nURL: ${r.url}\n${r.content}`)
-    .join("\n\n");
+      const rawResults = await searchTool.invoke(input.query);
+      results = JSON.parse(rawResults) as Array<{
+        title: string;
+        url: string;
+        content: string;
+      }>;
+    } catch (err) {
+      console.warn("Tavily search failed, falling back to internal knowledge:", err);
+      onToken("[System Note: Tavily search failed, falling back to internal knowledge]\n\n");
+    }
+  } else {
+    onToken("[System Note: No Tavily search key provided, using internal knowledge]\n\n");
+  }
 
-  const model = new ChatGoogleGenerativeAI({
-    model: "gemini-2.0-flash",
-    apiKey: apiKeys.gemini,
-    streaming: true,
-  });
+  const sourcesContext = results.length > 0
+    ? results.map((r, i) => `[${i + 1}] ${r.title}\nURL: ${r.url}\n${r.content}`).join("\n\n")
+    : "No search results available.";
+
+  const model = createLLM(apiKeys, "default");
 
   const systemPrompt = `You are Scout, the research agent of Signhify AI.
-Synthesize the search results into a clear, accurate, well-cited answer.
-Reference sources as [1], [2], etc. Be factual. Do not add information not in the sources.`;
+Synthesize the search results (if any) into a clear, accurate, well-cited answer.
+If search results are available, reference sources as [1], [2], etc. Be factual.
+If no search results are available, answer the question to the best of your ability using your general knowledge, and mention that web search was unavailable.`;
 
   const userMessage = `Query: ${input.query}\n\nSearch results:\n${sourcesContext}\n\nProvide a comprehensive answer with citations.`;
 

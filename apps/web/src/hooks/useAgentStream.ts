@@ -1,5 +1,12 @@
 import { useState, useCallback } from "react";
 import { KeyVault } from "../lib/keyVault";
+import { useSkillsStore } from "../stores/skillsStore";
+
+export interface Source {
+  title: string;
+  url: string;
+  snippet: string;
+}
 
 interface StreamState {
   isStreaming: boolean;
@@ -7,6 +14,8 @@ interface StreamState {
   statusMessage: string | null;
   tokens: string;
   error: string | null;
+  sources: Source[];
+  searchQuery: string | null;
 }
 
 export function useAgentStream(serverUrl = "/api") {
@@ -16,6 +25,8 @@ export function useAgentStream(serverUrl = "/api") {
     statusMessage: null,
     tokens: "",
     error: null,
+    sources: [],
+    searchQuery: null,
   });
 
   const sendMessage = useCallback(
@@ -26,6 +37,8 @@ export function useAgentStream(serverUrl = "/api") {
         statusMessage: null,
         tokens: "",
         error: null,
+        sources: [],
+        searchQuery: message,
       });
 
       const response = await fetch(`${serverUrl}/agents/chat`, {
@@ -69,6 +82,10 @@ export function useAgentStream(serverUrl = "/api") {
               setState((s) => ({ ...s, agentType: event.agentType }));
             if (event.type === "token")
               setState((s) => ({ ...s, tokens: s.tokens + event.token }));
+            if (event.type === "skill-suggestion")
+              useSkillsStore.getState().addSuggestedSkill(event.skill);
+            if (event.type === "citations")
+              setState((s) => ({ ...s, sources: event.sources || [] }));
             if (event.type === "error")
               setState((s) => ({
                 ...s,
