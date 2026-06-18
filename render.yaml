@@ -12,12 +12,12 @@ services:
       - key: PORT
         value: 4000
       - key: MONGODB_URI
-        sync: false
+        value: mongodb+srv://rajpiyush092_db_user:uoQ7att2oqsDSf46@cluster0.xfzax7j.mongodb.net/signhify?retryWrites=true&w=majority
       - key: JWT_SECRET
-        sync: false
+        value: a8d369226ea26191b00a9763f9424ad7e7aedafa5c982c4e574f0ec66bad38e56e0f75eeffbd4c8bac192514d68c7328945909406023c1f608974ef9ef885076
       - key: JWT_REFRESH_SECRET
-        sync: false
+        value: 6c1a5c76300b6cd9769375e7fea331a19180b1358545a0b2ae7a91157445b687e345a9a3d4bcd518328a33c5998b768c0629e450ecdc47e77abae84095809d46
       - key: CORS_ORIGIN
-        sync: false
+        value: https://signhify-ai.vercel.app
       - key: REDIS_URL
         sync: false
