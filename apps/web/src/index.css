@@ -1,5 +1,5 @@
 @import "tailwindcss";
-@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
+@import url("https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap");
 
 /* ─── Design Tokens ─────────────────────────────────────────── */
 @theme {
@@ -48,9 +48,9 @@
   --color-text-dim: #334155;
 
   /* Fonts */
-  --font-display: 'Space Grotesk', system-ui, sans-serif;
-  --font-body: 'Inter', system-ui, -apple-system, sans-serif;
-  --font-mono: 'JetBrains Mono', ui-monospace, monospace;
+  --font-display: "Space Grotesk", system-ui, sans-serif;
+  --font-body: "Inter", system-ui, -apple-system, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, monospace;
 
   /* Radius */
   --radius-xs: 6px;
@@ -73,7 +73,9 @@
 }
 
 /* ─── Base Reset ─────────────────────────────────────────────── */
-*, *::before, *::after {
+*,
+*::before,
+*::after {
   box-sizing: border-box;
 }
 
@@ -97,10 +99,20 @@ body {
   scrollbar-width: thin;
   scrollbar-color: #1e1e2e transparent;
 }
-::-webkit-scrollbar { width: 4px; height: 4px; }
-::-webkit-scrollbar-track { background: transparent; }
-::-webkit-scrollbar-thumb { background: #1e1e2e; border-radius: 4px; }
-::-webkit-scrollbar-thumb:hover { background: rgba(0, 229, 255, 0.3); }
+::-webkit-scrollbar {
+  width: 4px;
+  height: 4px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: #1e1e2e;
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(0, 229, 255, 0.3);
+}
 
 /* ─── Glass Panel ────────────────────────────────────────────── */
 .glass-panel {
@@ -119,16 +131,24 @@ body {
 
 /* ─── Glow utilities ─────────────────────────────────────────── */
 .glow-cyan {
-  box-shadow: 0 0 20px rgba(0, 229, 255, 0.15), 0 0 60px rgba(0, 229, 255, 0.05);
+  box-shadow:
+    0 0 20px rgba(0, 229, 255, 0.15),
+    0 0 60px rgba(0, 229, 255, 0.05);
 }
 .glow-cyan-strong {
-  box-shadow: 0 0 30px rgba(0, 229, 255, 0.3), 0 0 80px rgba(0, 229, 255, 0.1);
+  box-shadow:
+    0 0 30px rgba(0, 229, 255, 0.3),
+    0 0 80px rgba(0, 229, 255, 0.1);
 }
 .glow-gold {
-  box-shadow: 0 0 20px rgba(245, 166, 35, 0.2), 0 0 60px rgba(245, 166, 35, 0.07);
+  box-shadow:
+    0 0 20px rgba(245, 166, 35, 0.2),
+    0 0 60px rgba(245, 166, 35, 0.07);
 }
 .text-glow-cyan {
-  text-shadow: 0 0 20px rgba(0, 229, 255, 0.5), 0 0 40px rgba(0, 229, 255, 0.2);
+  text-shadow:
+    0 0 20px rgba(0, 229, 255, 0.5),
+    0 0 40px rgba(0, 229, 255, 0.2);
 }
 
 /* ─── Gradient Text ──────────────────────────────────────────── */
@@ -147,8 +167,12 @@ body {
 
 /* ─── Shimmer animation ──────────────────────────────────────── */
 @keyframes shimmer {
-  0% { background-position: -200% center; }
-  100% { background-position: 200% center; }
+  0% {
+    background-position: -200% center;
+  }
+  100% {
+    background-position: 200% center;
+  }
 }
 .shimmer {
   background: linear-gradient(
@@ -163,8 +187,14 @@ body {
 
 /* ─── Pulse animation ────────────────────────────────────────── */
 @keyframes pulse-ring {
-  0% { transform: scale(1); opacity: 0.6; }
-  100% { transform: scale(1.6); opacity: 0; }
+  0% {
+    transform: scale(1);
+    opacity: 0.6;
+  }
+  100% {
+    transform: scale(1.6);
+    opacity: 0;
+  }
 }
 .pulse-ring {
   animation: pulse-ring 1.5s ease-out infinite;
@@ -172,16 +202,28 @@ body {
 
 /* ─── Entry animations ───────────────────────────────────────── */
 @keyframes fade-up {
-  from { opacity: 0; transform: translateY(16px); }
-  to   { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 .animate-fade-up {
   animation: fade-up 0.5s var(--ease-smooth) both;
 }
 
 @keyframes scale-in {
-  from { opacity: 0; transform: scale(0.95); }
-  to   { opacity: 1; transform: scale(1); }
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
 }
 .animate-scale-in {
   animation: scale-in 0.4s var(--ease-spring) both;
@@ -189,8 +231,13 @@ body {
 
 /* ─── Typing cursor ──────────────────────────────────────────── */
 @keyframes blink {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0; }
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0;
+  }
 }
 .cursor-blink {
   animation: blink 1s ease-in-out infinite;
@@ -198,15 +245,33 @@ body {
 
 /* ─── Neural mesh background ─────────────────────────────────── */
 @keyframes mesh-drift {
-  0%   { background-position: 0% 50%; }
-  50%  { background-position: 100% 50%; }
-  100% { background-position: 0% 50%; }
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
 }
 .neural-mesh {
-  background: 
-    radial-gradient(ellipse at 20% 50%, rgba(0, 229, 255, 0.03) 0%, transparent 50%),
-    radial-gradient(ellipse at 80% 20%, rgba(59, 130, 246, 0.03) 0%, transparent 50%),
-    radial-gradient(ellipse at 50% 80%, rgba(167, 139, 250, 0.02) 0%, transparent 50%);
+  background:
+    radial-gradient(
+      ellipse at 20% 50%,
+      rgba(0, 229, 255, 0.03) 0%,
+      transparent 50%
+    ),
+    radial-gradient(
+      ellipse at 80% 20%,
+      rgba(59, 130, 246, 0.03) 0%,
+      transparent 50%
+    ),
+    radial-gradient(
+      ellipse at 50% 80%,
+      rgba(167, 139, 250, 0.02) 0%,
+      transparent 50%
+    );
   background-size: 200% 200%;
   animation: mesh-drift 15s ease infinite;
 }
@@ -221,7 +286,7 @@ body {
   position: relative;
 }
 .status-dot-active::before {
-  content: '';
+  content: "";
   position: absolute;
   inset: -4px;
   border-radius: 50%;
@@ -231,7 +296,9 @@ body {
 
 /* ─── Micro-interaction hovers ───────────────────────────────── */
 .hover-lift {
-  transition: transform 0.2s var(--ease-smooth), box-shadow 0.2s var(--ease-smooth);
+  transition:
+    transform 0.2s var(--ease-smooth),
+    box-shadow 0.2s var(--ease-smooth);
 }
 .hover-lift:hover {
   transform: translateY(-2px);
@@ -239,7 +306,9 @@ body {
 }
 
 .hover-glow-cyan {
-  transition: box-shadow 0.2s ease, border-color 0.2s ease;
+  transition:
+    box-shadow 0.2s ease,
+    border-color 0.2s ease;
 }
 .hover-glow-cyan:hover {
   box-shadow: 0 0 20px rgba(0, 229, 255, 0.2);
@@ -256,12 +325,16 @@ body {
   font-size: 0.875rem;
   padding: 0.625rem 0.875rem;
   outline: none;
-  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
   width: 100%;
 }
 .input-base:focus {
   border-color: rgba(0, 229, 255, 0.4);
-  box-shadow: 0 0 0 3px rgba(0, 229, 255, 0.08), 0 0 20px rgba(0, 229, 255, 0.1);
+  box-shadow:
+    0 0 0 3px rgba(0, 229, 255, 0.08),
+    0 0 20px rgba(0, 229, 255, 0.1);
 }
 .input-base::placeholder {
   color: var(--color-text-dim);
@@ -353,9 +426,53 @@ body {
 
 /* ─── Streaming dots ─────────────────────────────────────────── */
 @keyframes streaming-dot {
-  0%, 80%, 100% { opacity: 0.2; transform: scale(0.8); }
-  40% { opacity: 1; transform: scale(1); }
+  0%,
+  80%,
+  100% {
+    opacity: 0.2;
+    transform: scale(0.8);
+  }
+  40% {
+    opacity: 1;
+    transform: scale(1);
+  }
 }
-.streaming-dot:nth-child(1) { animation: streaming-dot 1.4s ease-in-out infinite 0s; }
-.streaming-dot:nth-child(2) { animation: streaming-dot 1.4s ease-in-out infinite 0.2s; }
-.streaming-dot:nth-child(3) { animation: streaming-dot 1.4s ease-in-out infinite 0.4s; }
+.streaming-dot:nth-child(1) {
+  animation: streaming-dot 1.4s ease-in-out infinite 0s;
+}
+.streaming-dot:nth-child(2) {
+  animation: streaming-dot 1.4s ease-in-out infinite 0.2s;
+}
+.streaming-dot:nth-child(3) {
+  animation: streaming-dot 1.4s ease-in-out infinite 0.4s;
+}
+
+/* ─── Mobile responsive ──────────────────────────────────────── */
+@media (max-width: 768px) {
+  .glass-panel {
+    backdrop-filter: blur(12px);
+  }
+  .input-base {
+    font-size: 16px; /* Prevent iOS zoom */
+  }
+  .btn-primary {
+    padding: 0.75rem 1.5rem;
+  }
+}
+
+/* ─── Focus visible ──────────────────────────────────────────── */
+:focus-visible {
+  outline: 2px solid rgba(0, 229, 255, 0.5);
+  outline-offset: 2px;
+}
+
+/* ─── Selection ──────────────────────────────────────────────── */
+::selection {
+  background: rgba(0, 229, 255, 0.2);
+  color: white;
+}
+
+/* ─── Smooth scroll ──────────────────────────────────────────── */
+html {
+  scroll-behavior: smooth;
+}

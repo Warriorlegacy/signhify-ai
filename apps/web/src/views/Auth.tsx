@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { fetchApi } from "../lib/api";
 import { useAuthStore } from "../stores/authStore";
 import { Landing } from "./Landing";
@@ -14,6 +15,7 @@ export function AuthView() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const { login } = useAuthStore();
+  const navigate = useNavigate();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -31,6 +33,7 @@ export function AuthView() {
       });
 
       login(data.token, data.user);
+      navigate("/app");
     } catch (err: any) {
       setError(err.message);
     } finally {
@@ -39,17 +42,22 @@ export function AuthView() {
   };
 
   if (showLanding) {
-    return <Landing onEnter={() => setShowLanding(false)} />;
+    return (
+      <>
+        <Landing />
+        {/* Hidden auth trigger — Landing CTA navigates to / which triggers this component again */}
+      </>
+    );
   }
 
   return (
     <div className="relative flex min-h-screen w-full items-center justify-center bg-obsidian text-slate-200 overflow-hidden">
       <BackgroundScene />
-      
+
       <div className="absolute inset-0 bg-obsidian/60 backdrop-blur-sm z-0"></div>
 
       <AnimatePresence>
-        <motion.div 
+        <motion.div
           initial={{ opacity: 0, scale: 0.95, y: 20 }}
           animate={{ opacity: 1, scale: 1, y: 0 }}
           transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
@@ -69,20 +77,20 @@ export function AuthView() {
             className="space-y-5 rounded-2xl border border-slate-800/60 bg-slate-900/40 p-8 backdrop-blur-md shadow-2xl"
           >
             <h2 className="text-xl font-semibold text-slate-100">
-              {isLogin ? "Access Command Center" : "Initialize Workspace"}
+              {isLogin ? "Welcome back" : "Create your workspace"}
             </h2>
 
             {!isLogin && (
               <div>
                 <label className="mb-1.5 block text-xs font-medium text-slate-400 uppercase tracking-wider">
-                  Operative Name
+                  Display Name
                 </label>
                 <input
                   type="text"
                   value={displayName}
                   onChange={(e) => setDisplayName(e.target.value)}
                   className="w-full rounded-lg border border-slate-700/50 bg-slate-800/50 px-4 py-2.5 text-sm text-slate-200 outline-none focus:border-cyan-teal focus:ring-1 focus:ring-cyan-teal/50 transition-all placeholder-slate-500"
-                  placeholder="Enter designation"
+                  placeholder="Your name"
                   required
                 />
               </div>
@@ -90,21 +98,21 @@ export function AuthView() {
 
             <div>
               <label className="mb-1.5 block text-xs font-medium text-slate-400 uppercase tracking-wider">
-                Credentials (Email)
+                Email
               </label>
               <input
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 className="w-full rounded-lg border border-slate-700/50 bg-slate-800/50 px-4 py-2.5 text-sm text-slate-200 outline-none focus:border-cyan-teal focus:ring-1 focus:ring-cyan-teal/50 transition-all placeholder-slate-500"
-                placeholder="operative@signhify.ai"
+                placeholder="you@example.com"
                 required
               />
             </div>
 
             <div>
               <label className="mb-1.5 block text-xs font-medium text-slate-400 uppercase tracking-wider">
-                Security Key (Password)
+                Password
               </label>
               <input
                 type="password"
@@ -117,32 +125,48 @@ export function AuthView() {
               />
             </div>
 
-            {error && <p className="text-sm text-red-400/90 bg-red-400/10 p-2 rounded-md border border-red-400/20">{error}</p>}
+            {error && (
+              <p className="text-sm text-red-400/90 bg-red-400/10 p-2 rounded-md border border-red-400/20">
+                {error}
+              </p>
+            )}
 
-            <button 
-              type="submit" 
+            <button
+              type="submit"
               disabled={loading}
               className="w-full mt-2 group relative px-4 py-3 bg-cyan-teal/10 border border-cyan-teal/50 rounded-lg overflow-hidden transition-all hover:bg-cyan-teal/20 active:scale-[0.98] disabled:opacity-50 disabled:pointer-events-none"
             >
               <div className="absolute inset-0 bg-gradient-to-r from-cyan-teal/0 via-cyan-teal/10 to-cyan-teal/0 group-hover:translate-x-full duration-1000 transition-transform ease-in-out" />
               <div className="relative flex items-center justify-center gap-2 font-semibold text-cyan-teal tracking-wide">
-                {loading ? "AUTHENTICATING..." : (isLogin ? "INITIALIZE" : "REGISTER")}
+                {loading
+                  ? "AUTHENTICATING..."
+                  : isLogin
+                    ? "SIGN IN"
+                    : "CREATE ACCOUNT"}
               </div>
             </button>
 
             <div className="pt-2 text-center border-t border-slate-800/50 mt-4">
               <p className="text-xs text-slate-500">
-                {isLogin ? "No active workspace?" : "Workspace already initialized?"}{" "}
+                {isLogin ? "New here?" : "Already have an account?"}{" "}
                 <button
                   type="button"
                   onClick={() => setIsLogin(!isLogin)}
                   className="text-cyan-teal hover:text-lucid-aqua transition-colors ml-1 font-medium"
                 >
-                  {isLogin ? "Create one" : "Access it"}
+                  {isLogin ? "Create an account" : "Sign in"}
                 </button>
               </p>
             </div>
           </form>
+
+          <button
+            onClick={() => setShowLanding(true)}
+            className="mt-4 w-full text-center text-xs transition-colors"
+            style={{ color: "rgba(148,163,184,0.4)" }}
+          >
+            ← Back to home
+          </button>
         </motion.div>
       </AnimatePresence>
     </div>

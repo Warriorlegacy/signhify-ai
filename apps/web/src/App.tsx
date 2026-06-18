@@ -1,32 +1,73 @@
 import { useState, useEffect } from "react";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { useAuthStore } from "./stores/authStore";
 import { useSettingsStore } from "./stores/settingsStore";
+import { useThemeStore } from "./stores/themeStore";
 import { AuthView } from "./views/Auth";
-import { Dashboard, View } from "./views/Dashboard";
+import { Dashboard } from "./views/Dashboard";
+import { Onboarding } from "./views/Onboarding";
 import { ErrorBoundary } from "./components/shared/ErrorBoundary";
 
-function AppContent() {
+function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const { isAuthenticated, loadFromStorage } = useAuthStore();
-  const { loadKeys } = useSettingsStore();
-  const [currentView, setCurrentView] = useState<View>("chat");
   const [ready, setReady] = useState(false);
 
   useEffect(() => {
     loadFromStorage();
+    setReady(true);
+  }, []);
+
+  if (!ready) return null;
+  if (!isAuthenticated) return <Navigate to="/" replace />;
+  return <>{children}</>;
+}
+
+function OnboardingGuard({ children }: { children: React.ReactNode }) {
+  const { hasKeys, loadKeys } = useSettingsStore();
+  const [ready, setReady] = useState(false);
+
+  useEffect(() => {
     loadKeys();
     setReady(true);
   }, []);
 
   if (!ready) return null;
 
-  if (!isAuthenticated) {
-    return <AuthView />;
+  if (!hasKeys) {
+    return <Onboarding onComplete={() => {}} />;
   }
 
-  return <Dashboard currentView={currentView} onViewChange={setCurrentView} />;
+  return <>{children}</>;
+}
+
+function AppContent() {
+  return (
+    <BrowserRouter>
+      <Routes>
+        <Route path="/" element={<AuthView />} />
+        <Route
+          path="/app/*"
+          element={
+            <ProtectedRoute>
+              <OnboardingGuard>
+                <Dashboard />
+              </OnboardingGuard>
+            </ProtectedRoute>
+          }
+        />
+        <Route path="*" element={<Navigate to="/" replace />} />
+      </Routes>
+    </BrowserRouter>
+  );
 }
 
 export default function App() {
+  const { loadTheme } = useThemeStore();
+
+  useEffect(() => {
+    loadTheme();
+  }, []);
+
   return (
     <ErrorBoundary>
       <AppContent />
