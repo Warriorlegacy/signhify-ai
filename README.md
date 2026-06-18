@@ -21,187 +21,227 @@ Signhify is an open-source AI workspace where 7 specialized agents collaborate t
 
 ---
 
-## Installation
+## Quick Install by Platform
 
-### Prerequisites
+Choose your operating system for copy-paste commands:
 
-| Requirement | Minimum | Recommended                 |
-| ----------- | ------- | --------------------------- |
-| Node.js     | v20.0+  | v22 LTS                     |
-| pnpm        | v10+    | v10.10                      |
-| MongoDB     | 7.0+    | MongoDB Atlas (free tier)   |
-| Redis       | 7.0+    | Optional (improves caching) |
+| Platform    | Guide                                    | Time   |
+| ----------- | ---------------------------------------- | ------ |
+| **Windows** | [INSTALL_WINDOWS.md](INSTALL_WINDOWS.md) | ~5 min |
+| **macOS**   | [INSTALL_MAC.md](INSTALL_MAC.md)         | ~5 min |
+| **Linux**   | [INSTALL_LINUX.md](INSTALL_LINUX.md)     | ~5 min |
 
-### Option 1: Local Development (Recommended for getting started)
+### Windows (PowerShell)
 
-```bash
-# 1. Clone the repository
+```powershell
+# Install prerequisites
+corepack enable
+corepack prepare pnpm@10.10.0 --activate
+
+# Clone and install
 git clone https://github.com/Warriorlegacy/signhify-ai.git
 cd signhify-ai
-
-# 2. Install dependencies
 pnpm install
 
-# 3. Set up environment variables
-cp server/.env.example server/.env
-```
+# Set up environment
+Copy-Item server\.env.example server\.env
+notepad server\.env   # Set JWT_SECRET and MONGODB_URI
 
-Edit `server/.env` with your settings:
-
-```env
-# Required — generate a random secret
-JWT_SECRET=your-random-secret-at-least-32-characters-long
-
-# Required — use local MongoDB or Atlas
-MONGODB_URI=mongodb://localhost:27017/signhify
-
-# Server
-PORT=4000
-CORS_ORIGIN=http://localhost:5173
-NODE_ENV=development
-```
-
-```bash
-# 4. Start MongoDB (if running locally)
-# Option A: Docker
+# Start MongoDB (Docker)
 docker run -d -p 27017:27017 --name signhify-mongo mongo:7
 
-# Option B: Local MongoDB service
-# mongod --dbpath /data/db
-
-# 5. Start the development server
+# Start dev server
 pnpm dev
 ```
 
-Open **http://localhost:5173** in your browser.
+Open **http://localhost:5173**
 
-### Option 2: Docker Compose (One command)
+### macOS (Terminal)
 
 ```bash
-# Clone and start everything
+# Install prerequisites
+brew install node@22
+corepack enable
+corepack prepare pnpm@10.10.0 --activate
+
+# Clone and install
 git clone https://github.com/Warriorlegacy/signhify-ai.git
 cd signhify-ai
+pnpm install
 
-# Create your environment file
+# Set up environment
 cp server/.env.example server/.env
-# Edit server/.env with your JWT_SECRET
+nano server/.env   # Set JWT_SECRET and MONGODB_URI
 
-# Start MongoDB + Redis + App
-docker compose up -d --build
+# Start MongoDB (Docker)
+docker run -d -p 27017:27017 --name signhify-mongo mongo:7
 
-# View logs
-docker compose logs -f app
+# Start dev server
+pnpm dev
 ```
 
-This starts:
+Open **http://localhost:5173**
 
-- **MongoDB** on port `27017`
-- **Redis** on port `6379`
-- **App** on port `80`
+### Linux (bash)
 
-Open **http://localhost** in your browser.
+```bash
+# Install prerequisites
+curl -fsSL https://deb.nodesource.com/setup_22.x | sudo -E bash -
+sudo apt-get install -y nodejs
+corepack enable
+corepack prepare pnpm@10.10.0 --activate
 
-### Option 3: Production Deployment
+# Clone and install
+git clone https://github.com/Warriorlegacy/signhify-ai.git
+cd signhify-ai
+pnpm install
 
-#### Render.com (Free Tier)
+# Set up environment
+cp server/.env.example server/.env
+nano server/.env   # Set JWT_SECRET and MONGODB_URI
 
-1. Fork the repo on GitHub
-2. Go to [render.com](https://render.com) → New → Blueprint
-3. Connect your fork — Render reads `render.yaml` automatically
-4. Set environment variables in Render dashboard:
-   - `JWT_SECRET` — random string (use a password generator)
-   - `MONGODB_URI` — your MongoDB Atlas connection string
-   - `CORS_ORIGIN` — your Render app URL (e.g., `https://signhify-ai.onrender.com`)
-5. Deploy — takes ~3 minutes
+# Start MongoDB (Docker)
+docker run -d -p 27017:27017 --name signhify-mongo mongo:7
 
-#### Railway
+# Start dev server
+pnpm dev
+```
 
-1. Fork the repo on GitHub
-2. Go to [railway.app](https://railway.app) → New Project → Deploy from GitHub
-3. Add a MongoDB service (Railway has a MongoDB plugin)
-4. Set environment variables in the Variables tab
-5. Deploy
+Open **http://localhost:5173**
 
-#### Vercel (Frontend) + Railway (Backend)
+### Any Platform — Docker One-Liner
 
-1. Deploy the frontend from `apps/web/` to Vercel
-2. Deploy the server from `server/` to Railway
-3. Set `CORS_ORIGIN` to your Vercel URL
-4. Update the Vite proxy or use environment variables for the API URL
+```bash
+git clone https://github.com/Warriorlegacy/signhify-ai.git && cd signhify-ai && cp server/.env.example server/.env && docker compose up -d --build
+```
+
+Open **http://localhost**
 
 ---
 
-## Getting Your API Keys
+## Getting API Keys (BYOK)
 
-Signhify uses a **BYOK (Bring Your Own Key)** model. You provide your own API keys — no subscription required.
+You need at least one LLM provider key. Free options:
 
-### Free Options
-
-| Provider          | How to Get a Key                                          | Cost                  |
-| ----------------- | --------------------------------------------------------- | --------------------- |
-| **Google Gemini** | [aistudio.google.com](https://aistudio.google.com/apikey) | Free tier available   |
-| **Groq**          | [console.groq.com](https://console.groq.com/keys)         | Free tier available   |
-| **OpenRouter**    | [openrouter.ai](https://openrouter.ai/keys)               | Free models available |
-
-### Paid Options
-
-| Provider      | How to Get a Key                                                     | Cost          |
+| Provider      | Get Key At                                                           | Free Tier     |
 | ------------- | -------------------------------------------------------------------- | ------------- |
-| **OpenAI**    | [platform.openai.com](https://platform.openai.com/api-keys)          | Pay per token |
-| **Anthropic** | [console.anthropic.com](https://console.anthropic.com/settings/keys) | Pay per token |
+| Google Gemini | [aistudio.google.com/apikey](https://aistudio.google.com/apikey)     | Yes           |
+| Groq          | [console.groq.com/keys](https://console.groq.com/keys)               | Yes           |
+| OpenRouter    | [openrouter.ai/keys](https://openrouter.ai/keys)                     | Yes           |
+| OpenAI        | [platform.openai.com/api-keys](https://platform.openai.com/api-keys) | Pay per token |
+| Anthropic     | [console.anthropic.com](https://console.anthropic.com/settings/keys) | Pay per token |
 
-### Adding Keys
-
-**Method 1: Web UI (Recommended)**
-
-1. Open the app → Settings → API Keys
-2. Paste your key(s) — they're stored locally in your browser
-
-**Method 2: Environment Variables**
-Add to `server/.env` for system-level access (used by scheduled tasks):
-
-```env
-GEMINI_API_KEY=your-key-here
-GROQ_API_KEY=your-key-here
-OPENAI_API_KEY=your-key-here
-```
+Add keys in the web UI at **Settings → API Keys**, or set them in `server/.env` for scheduled tasks.
 
 ---
 
-## Using Signhify
+## CLI Reference
 
-### First Time Setup
+The `signhify` CLI gives you full control from the terminal.
 
-1. Open the app → Click **"Get Started Free"**
-2. Create an account (email + password)
-3. The onboarding wizard guides you through:
-   - Connecting an AI provider
-   - Meeting your 7 agents
-   - Setting up channels
-4. Start chatting!
+### Install the CLI
 
-### Keyboard Shortcuts
+```bash
+cd packages/cli
+pnpm build
+pnpm link --global
 
-| Shortcut                | Action               |
-| ----------------------- | -------------------- |
-| `Cmd+K` / `Ctrl+K`      | Open command palette |
-| `Cmd+1` through `Cmd+5` | Switch between views |
-| `Enter`                 | Send message         |
-| `Esc`                   | Close modals         |
-
-### Chat Commands
-
-Just type naturally — Nexus (the router agent) will direct your request to the right specialist:
-
-```
-Research the latest AI developments
-Write a blog post about React 19
-Generate a Python data pipeline
-Save this to my memory vault
-Schedule a daily briefing at 9am
+signhify --version
 ```
 
-### Agents
+### All Commands
+
+```
+signhify config              Set server URL
+signhify login               Login with email/password
+signhify status              Show server health
+
+signhify ask <message>       Chat with agents (streams response)
+  -t, --thread <id>         Continue a specific thread
+
+signhify tui                 Launch interactive terminal REPL
+
+signhify threads list        List recent threads
+signhify threads create <t>  Create a new thread
+
+signhify memory list         List memory vault notes
+signhify memory add <k> <v>  Add a note to vault
+  -t, --tags <tags>          Comma-separated tags
+signhify memory delete <id>  Delete a memory note
+
+signhify recall search <q>   Semantic memory search
+  -k, --top <n>              Number of results (default: 5)
+signhify recall context <q>  Get relevant context for a query
+signhify recall stats        Show memory statistics
+signhify recall fact list    List all facts
+signhify recall fact get <k> Get a specific fact
+signhify recall fact delete <k> Delete a fact
+
+signhify skills list         List all skills
+signhify skills approve <id> Approve a skill
+signhify skills reject <id>  Reject a skill
+
+signhify schedule list       List scheduled tasks
+signhify schedule add <n> <cron> <prompt>  Schedule a task
+signhify schedule delete <id> Delete a task
+signhify schedule toggle <id> Enable/disable a task
+signhify schedule status     Show scheduler status
+
+signhify profile             View your user profile
+```
+
+### CLI Examples
+
+```bash
+# First-time setup
+signhify config              # Set server URL (e.g., https://signhify-ai.onrender.com)
+signhify login               # Enter email + password
+
+# Chat
+signhify ask "Research quantum computing breakthroughs"
+signhify ask "Write a blog post about React 19" --thread abc123
+
+# Memory
+signhify memory add "project_deadline" "March 15, 2026" -t "project,deadline"
+signhify recall search "project deadline"
+signhify recall context "what are my upcoming deadlines"
+
+# Skills
+signhify skills list
+signhify skills approve 64f1a2b3c4d5e6f7a8b9c0d1
+
+# Scheduling
+signhify schedule add "morning_briefing" "0 9 * * *" "Research top AI news and summarize"
+signhify schedule list
+signhify schedule toggle 64f1a2b3c4d5e6f7a8b9c0d1
+
+# Profile
+signhify profile
+
+# Interactive mode
+signhify tui
+  you › What's on my schedule today?
+  ai  › [streams response]
+  you › /memory
+  you › /profile
+  you › /quit
+```
+
+### TUI Commands
+
+| Command    | Description               |
+| ---------- | ------------------------- |
+| `/quit`    | Exit the TUI              |
+| `/memory`  | Search your memory vault  |
+| `/profile` | View your user profile    |
+| `/status`  | Check server health       |
+| `/history` | Show conversation history |
+| `/clear`   | Clear the screen          |
+| `/help`    | Show all commands         |
+
+---
+
+## Agents
 
 | Agent      | What It Does                               |
 | ---------- | ------------------------------------------ |
@@ -213,21 +253,16 @@ Schedule a daily briefing at 9am
 | **Herald** | Handles communication and scheduling       |
 | **Vision** | Analyzes images and screenshots            |
 
-### Memory System
+---
 
-- **Episodes** — Conversation summaries with semantic search
-- **Facts** — Key-value pairs with confidence scores
-- **Profiles** — Your preferences, projects, and important people
-- **Auto-Context** — Relevant memories are injected into agent prompts automatically
+## Keyboard Shortcuts (Web UI)
 
-### Scheduling
-
-Create recurring tasks using natural language or cron expressions:
-
-```
-Schedule a daily standup summary at 9am every weekday
-Run a weekly research digest every Monday at 8am
-```
+| Shortcut                | Action               |
+| ----------------------- | -------------------- |
+| `Cmd+K` / `Ctrl+K`      | Open command palette |
+| `Cmd+1` through `Cmd+5` | Switch between views |
+| `Enter`                 | Send message         |
+| `Esc`                   | Close modals         |
 
 ---
 
@@ -253,7 +288,9 @@ signhify-ai/
 │   └── .env.example
 ├── docker-compose.yml          # MongoDB + Redis + App
 ├── Dockerfile                  # Multi-stage production build
-└── package.json                # Root workspace config
+├── INSTALL_WINDOWS.md          # Windows installation guide
+├── INSTALL_MAC.md              # macOS installation guide
+└── INSTALL_LINUX.md            # Linux installation guide
 ```
 
 ---
@@ -316,8 +353,6 @@ signhify-ai/
 
 ## Development
 
-### Commands
-
 ```bash
 pnpm dev              # Start all services (web + server)
 pnpm build            # Build all packages
@@ -336,67 +371,19 @@ pnpm --filter @signhify/agents test
 pnpm --filter @signhify/web typecheck
 ```
 
-### Quality Gate
-
-```bash
-pnpm typecheck && pnpm lint && pnpm build && pnpm test
-```
-
----
-
-## Tech Stack
-
-| Layer         | Technology                                              |
-| ------------- | ------------------------------------------------------- |
-| Frontend      | React 19, Vite, Tailwind CSS v4, Zustand, Framer Motion |
-| Backend       | Express, Mongoose, node-cron                            |
-| LLM Framework | LangChain.js (OpenAI, Anthropic, Groq, Gemini)          |
-| Database      | MongoDB 7                                               |
-| Cache         | Redis 7 (optional)                                      |
-| Build         | Turborepo, pnpm, TypeScript                             |
-| Deployment    | Docker, Docker Compose                                  |
-
 ---
 
 ## Troubleshooting
 
-### "Port already in use"
-
-```bash
-# Kill the process on port 4000 (server)
-lsof -ti:4000 | xargs kill -9
-
-# Or use a different port in server/.env
-PORT=4001
-```
-
-### "MongoDB connection refused"
-
-```bash
-# Start MongoDB with Docker
-docker run -d -p 27017:27017 --name signhify-mongo mongo:7
-
-# Or check if MongoDB is running
-mongosh --eval "db.runCommand({ ping: 1 })"
-```
-
-### "Cannot find module @signhify/\*"
-
-```bash
-# Reinstall dependencies from root
-pnpm install
-```
-
-### "Vite proxy error"
-
-The Vite dev server proxies API requests to the backend. Make sure:
-
-- Server is running on port 4000 (or update `vite.config.ts`)
-- `CORS_ORIGIN` in `server/.env` matches `http://localhost:5173`
-
-### Frontend shows "System Initialization Required"
-
-You need at least one LLM API key. Go to **Settings → API Keys** and add a key from a free provider like Groq or Gemini.
+| Problem                          | Solution                                                 |
+| -------------------------------- | -------------------------------------------------------- |
+| `pnpm: command not found`        | Run `corepack enable` and restart terminal               |
+| `MongoNetworkError`              | Ensure MongoDB is running: `docker ps`                   |
+| `EADDRINUSE`                     | Port taken — change `PORT` in `.env` or kill the process |
+| `Cannot find module @signhify/*` | Run `pnpm install` from project root                     |
+| "System Initialization Required" | Add at least one API key in Settings → API Keys          |
+| Vite proxy error                 | Ensure server is on port 4000 and `CORS_ORIGIN` matches  |
+| Docker build fails               | Ensure Docker Desktop is running                         |
 
 ---
 
@@ -413,9 +400,3 @@ You need at least one LLM API key. Go to **Settings → API Keys** and add a key
 ## License
 
 MIT License — see [LICENSE](LICENSE) for details.
-
----
-
-<p align="center">
-  <strong>Signhify AI</strong> · Built with care by the open source community
-</p>

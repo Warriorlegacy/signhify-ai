@@ -8,7 +8,7 @@ const envSchema = z.object({
     .url("MONGODB_URI must be a valid MongoDB connection string"),
 
   // Server
-  PORT: z.coerce.number().default(3001),
+  PORT: z.coerce.number().default(4000),
   CORS_ORIGIN: z.string().default("http://localhost:5173"),
   NODE_ENV: z
     .enum(["development", "production", "test"])

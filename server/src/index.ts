@@ -65,11 +65,6 @@ if (env.NODE_ENV === "production") {
   app.use(morgan("dev"));
 }
 
-if (env.NODE_ENV === "production") {
-  const webDist = path.join(__dirname, "../../apps/web/dist");
-  app.use(express.static(webDist));
-}
-
 // API routes
 app.use("/api/auth", authRoutes);
 app.use("/api/agents", agentRoutes);
@@ -99,8 +94,11 @@ app.get("/api/health", (_req, res) => {
   });
 });
 
+// Serve static assets in production
 if (env.NODE_ENV === "production") {
   const webDist = path.join(__dirname, "../../apps/web/dist");
+  app.use(express.static(webDist));
+  // SPA fallback — must come AFTER all API routes
   app.get("*", (_req, res) => {
     res.sendFile(path.join(webDist, "index.html"));
   });

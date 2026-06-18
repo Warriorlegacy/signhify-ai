@@ -2,7 +2,7 @@ services:
   - type: web
     name: signhify-ai-api
     runtime: docker
-    repo: https://github.com/Signhify/signhify-ai
+    repo: https://github.com/Warriorlegacy/signhify-ai
     plan: free
     dockerfilePath: Dockerfile
     envVars:

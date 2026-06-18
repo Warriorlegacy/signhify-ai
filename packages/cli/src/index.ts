@@ -17,12 +17,12 @@ interface Config {
 
 function loadConfig(): Config {
   if (!fs.existsSync(CONFIG_FILE)) {
-    return { serverUrl: "http://localhost:3001" };
+    return { serverUrl: "http://localhost:4000" };
   }
   try {
     return JSON.parse(fs.readFileSync(CONFIG_FILE, "utf-8"));
   } catch {
-    return { serverUrl: "http://localhost:3001" };
+    return { serverUrl: "http://localhost:4000" };
   }
 }
 
