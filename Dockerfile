@@ -45,7 +45,7 @@ COPY packages/memory/package.json packages/memory/
 COPY packages/agents/package.json packages/agents/
 COPY packages/cli/package.json packages/cli/
 COPY apps/web/package.json apps/web/
-RUN pnpm install --prod --frozen-lockfile
+RUN pnpm install --prod
 
 ENV NODE_ENV=production
 ENV PORT=4000
