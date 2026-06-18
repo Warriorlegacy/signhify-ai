@@ -7,6 +7,7 @@ import cookieParser from "cookie-parser";
 import path from "path";
 import pinoHttp from "pino-http";
 import morgan from "morgan";
+import cron from "node-cron";
 
 import { validateEnv } from "./lib/env";
 import { createContextLogger } from "./lib/logger";
@@ -141,6 +142,19 @@ async function start() {
         },
         "Signhify AI v3 server running",
       );
+
+      // Keep-alive: ping self every 10 min to prevent free-tier spin-down
+      if (env.NODE_ENV === "production") {
+        cron.schedule("*/10 * * * *", async () => {
+          try {
+            const res = await fetch(`http://localhost:${env.PORT}/api/health`);
+            log.debug({ status: res.status }, "Keep-alive ping");
+          } catch {
+            log.warn("Keep-alive ping failed");
+          }
+        });
+        log.info("Keep-alive cron started (every 10 min)");
+      }
     });
   } catch (error) {
     log.error({ err: error }, "Failed to start server");
