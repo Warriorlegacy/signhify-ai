@@ -26,7 +26,7 @@ npm --version    # Should show v10+
 
 ```bash
 corepack enable
-corepack prepare pnpm@10.10.0 --activate
+corepack prepare pnpm@9.15.0 --activate
 ```
 
 Verify:

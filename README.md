@@ -36,7 +36,7 @@ Choose your operating system for copy-paste commands:
 ```powershell
 # Install prerequisites
 corepack enable
-corepack prepare pnpm@10.10.0 --activate
+corepack prepare pnpm@9.15.0 --activate
 
 # Clone and install
 git clone https://github.com/Warriorlegacy/signhify-ai.git
@@ -62,7 +62,7 @@ Open **http://localhost:5173**
 # Install prerequisites
 brew install node@22
 corepack enable
-corepack prepare pnpm@10.10.0 --activate
+corepack prepare pnpm@9.15.0 --activate
 
 # Clone and install
 git clone https://github.com/Warriorlegacy/signhify-ai.git
@@ -89,7 +89,7 @@ Open **http://localhost:5173**
 curl -fsSL https://deb.nodesource.com/setup_22.x | sudo -E bash -
 sudo apt-get install -y nodejs
 corepack enable
-corepack prepare pnpm@10.10.0 --activate
+corepack prepare pnpm@9.15.0 --activate
 
 # Clone and install
 git clone https://github.com/Warriorlegacy/signhify-ai.git
