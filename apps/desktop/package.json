@@ -2,7 +2,7 @@
   "name": "signhify-desktop",
   "version": "1.0.0",
   "description": "Signhify AI Desktop — Native AI coding assistant with multi-provider fallback",
-  "main": "out/main/index.js",
+  "main": "out/index.js",
   "author": "Signhify AI",
   "license": "MIT",
   "scripts": {

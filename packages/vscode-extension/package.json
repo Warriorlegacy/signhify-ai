@@ -4,6 +4,10 @@
   "description": "AI coding assistant with multi-provider fallback — works on VS Code, Cursor, WindSurf, and Anti-Gravity",
   "version": "1.0.0",
   "publisher": "signhify",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Warriorlegacy/signhify-ai"
+  },
   "engines": {
     "vscode": "^1.85.0"
   },
@@ -24,7 +28,6 @@
     "onStartupFinished"
   ],
   "main": "./out/extension.js",
-  "icon": "media/icon.png",
   "contributes": {
     "viewsContainers": {
       "activitybar": [
