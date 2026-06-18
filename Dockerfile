@@ -51,7 +51,4 @@ ENV NODE_ENV=production
 ENV PORT=4000
 EXPOSE 4000
 
-HEALTHCHECK --interval=30s --timeout=5s --start-period=15s --retries=3 \
-  CMD curl -f http://localhost:$PORT/api/health || exit 1
-
 CMD ["node", "server/dist/index.js"]
