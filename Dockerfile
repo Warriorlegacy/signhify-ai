@@ -7,6 +7,7 @@ COPY pnpm-lock.yaml pnpm-workspace.yaml package.json turbo.json tsconfig.base.js
 COPY packages/types/package.json packages/types/
 COPY packages/memory/package.json packages/memory/
 COPY packages/agents/package.json packages/agents/
+COPY packages/cli/package.json packages/cli/
 COPY server/package.json server/
 COPY apps/web/package.json apps/web/
 RUN pnpm install --frozen-lockfile
@@ -16,6 +17,7 @@ COPY --from=deps /app/node_modules /app/node_modules
 COPY --from=deps /app/packages/types/node_modules /app/packages/types/node_modules
 COPY --from=deps /app/packages/memory/node_modules /app/packages/memory/node_modules
 COPY --from=deps /app/packages/agents/node_modules /app/packages/agents/node_modules
+COPY --from=deps /app/packages/cli/node_modules /app/packages/cli/node_modules
 COPY --from=deps /app/server/node_modules /app/server/node_modules
 COPY --from=deps /app/apps/web/node_modules /app/apps/web/node_modules
 COPY . .
@@ -41,6 +43,7 @@ COPY server/package.json server/
 COPY packages/types/package.json packages/types/
 COPY packages/memory/package.json packages/memory/
 COPY packages/agents/package.json packages/agents/
+COPY packages/cli/package.json packages/cli/
 COPY apps/web/package.json apps/web/
 RUN pnpm install --prod --frozen-lockfile
 
