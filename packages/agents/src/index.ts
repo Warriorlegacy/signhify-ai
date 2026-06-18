@@ -26,5 +26,19 @@ export {
   GroqAdapter,
   OpenRouterAdapter,
   GeminiAdapter,
+  MistralAdapter,
+  TogetherAdapter,
+  CerebrasAdapter,
+  SambaNovaAdapter,
+  CloudflareAdapter,
+  OpenAICompatibleAdapter,
 } from "./adapters";
 export type { LLMAdapter, LLMMessage, LLMOptions } from "./adapters";
+
+// Free model registry & circuit breaker
+export {
+  FREE_MODELS,
+  PAID_MODELS,
+  getAvailableFreeModels,
+} from "./free-models";
+export { CircuitBreaker } from "./circuit-breaker";

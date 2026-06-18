@@ -1,8 +1,14 @@
 import { Request, Response, NextFunction } from "express";
 import jwt from "jsonwebtoken";
 
-export const JWT_SECRET =
-  process.env.JWT_SECRET ?? "signhify-dev-secret-change-in-prod";
+if (!process.env.JWT_SECRET || process.env.JWT_SECRET.length < 32) {
+  throw new Error(
+    "FATAL: JWT_SECRET must be set and at least 32 characters. " +
+      "Generate one with: node -e \"console.log(require('crypto').randomBytes(64).toString('hex'))\"",
+  );
+}
+
+export const JWT_SECRET = process.env.JWT_SECRET;
 
 export interface AuthRequest extends Request {
   userId?: string;

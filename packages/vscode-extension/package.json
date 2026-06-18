@@ -1,0 +1,177 @@
+{
+  "name": "signhify",
+  "displayName": "Signhify AI",
+  "description": "AI coding assistant with multi-provider fallback — works on VS Code, Cursor, WindSurf, and Anti-Gravity",
+  "version": "1.0.0",
+  "publisher": "signhify",
+  "engines": {
+    "vscode": "^1.85.0"
+  },
+  "categories": [
+    "AI",
+    "Programming",
+    "Other"
+  ],
+  "keywords": [
+    "ai",
+    "llm",
+    "code",
+    "assistant",
+    "multi-provider",
+    "fallback"
+  ],
+  "activationEvents": [
+    "onStartupFinished"
+  ],
+  "main": "./out/extension.js",
+  "icon": "media/icon.png",
+  "contributes": {
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "signhify",
+          "title": "Signhify AI",
+          "icon": "media/icon.svg"
+        }
+      ]
+    },
+    "views": {
+      "signhify": [
+        {
+          "id": "signhify.chat",
+          "name": "Chat",
+          "type": "webview"
+        }
+      ]
+    },
+    "commands": [
+      {
+        "command": "signhify.chat",
+        "title": "Signhify: Open Chat"
+      },
+      {
+        "command": "signhify.explain",
+        "title": "Signhify: Explain Code"
+      },
+      {
+        "command": "signhify.fix",
+        "title": "Signhify: Fix Code"
+      },
+      {
+        "command": "signhify.refactor",
+        "title": "Signhify: Refactor Code"
+      },
+      {
+        "command": "signhify.generateTests",
+        "title": "Signhify: Generate Tests"
+      },
+      {
+        "command": "signhify.settings",
+        "title": "Signhify: Configure API Keys"
+      },
+      {
+        "command": "signhify.focusChat",
+        "title": "Signhify: Focus Chat Panel"
+      }
+    ],
+    "keybindings": [
+      {
+        "command": "signhify.chat",
+        "key": "ctrl+shift+a",
+        "mac": "cmd+shift+a",
+        "when": "editorTextFocus"
+      },
+      {
+        "command": "signhify.explain",
+        "key": "ctrl+shift+e",
+        "mac": "cmd+shift+e",
+        "when": "editorTextFocus"
+      },
+      {
+        "command": "signhify.fix",
+        "key": "ctrl+shift+f",
+        "mac": "cmd+shift+f",
+        "when": "editorTextFocus"
+      },
+      {
+        "command": "signhify.refactor",
+        "key": "ctrl+shift+r",
+        "mac": "cmd+shift+r",
+        "when": "editorTextFocus"
+      }
+    ],
+    "menus": {
+      "editor/context": [
+        {
+          "command": "signhify.explain",
+          "group": "signhify@1",
+          "when": "editorHasSelection"
+        },
+        {
+          "command": "signhify.fix",
+          "group": "signhify@2",
+          "when": "editorHasSelection"
+        },
+        {
+          "command": "signhify.refactor",
+          "group": "signhify@3",
+          "when": "editorHasSelection"
+        },
+        {
+          "command": "signhify.generateTests",
+          "group": "signhify@4",
+          "when": "editorHasSelection"
+        }
+      ],
+      "editor/title": [
+        {
+          "command": "signhify.chat",
+          "group": "navigation"
+        }
+      ]
+    },
+    "configuration": {
+      "title": "Signhify AI",
+      "properties": {
+        "signhify.serverUrl": {
+          "type": "string",
+          "default": "http://localhost:3001",
+          "description": "Signhify server URL"
+        },
+        "signhify.apiToken": {
+          "type": "string",
+          "default": "",
+          "description": "JWT authentication token"
+        },
+        "signhify.enableCompletions": {
+          "type": "boolean",
+          "default": true,
+          "description": "Enable inline code completions"
+        },
+        "signhify.completionDelay": {
+          "type": "number",
+          "default": 500,
+          "description": "Delay in ms before triggering completions"
+        },
+        "signhify.maxCompletionLines": {
+          "type": "number",
+          "default": 500,
+          "description": "Maximum file lines for completions (0 = unlimited)"
+        }
+      }
+    }
+  },
+  "scripts": {
+    "vscode:prepublish": "npm run compile",
+    "compile": "tsc -p ./",
+    "watch": "tsc -watch -p ./",
+    "lint": "tsc --noEmit",
+    "package": "vsce package"
+  },
+  "devDependencies": {
+    "@types/vscode": "^1.85.0",
+    "@types/node": "^20.0.0",
+    "typescript": "^5.3.0",
+    "@vscode/vsce": "^2.22.0"
+  }
+}

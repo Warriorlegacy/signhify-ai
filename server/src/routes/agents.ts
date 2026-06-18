@@ -82,20 +82,61 @@ router.post(
       openai?: string;
       anthropic?: string;
       openrouter?: string;
+      mistral?: string;
+      together?: string;
+      cerebras?: string;
+      sambanova?: string;
+      cloudflare?: string;
+      cloudflareAccountId?: string;
       tavily?: string;
     };
-    const { gemini, groq, openai, anthropic, openrouter, tavily } = userKeys;
+    const {
+      gemini,
+      groq,
+      openai,
+      anthropic,
+      openrouter,
+      mistral,
+      together,
+      cerebras,
+      sambanova,
+      cloudflare,
+      cloudflareAccountId,
+      tavily,
+    } = userKeys;
 
-    if (!gemini && !openai && !anthropic && !openrouter && !groq) {
-      return res
-        .status(400)
-        .json({
-          error:
-            "At least one LLM API key required (Gemini, OpenAI, Anthropic, OpenRouter, or Groq). Add it in Settings.",
-        });
+    const hasAnyKey = !!(
+      gemini ||
+      openai ||
+      anthropic ||
+      openrouter ||
+      groq ||
+      mistral ||
+      together ||
+      cerebras ||
+      sambanova ||
+      cloudflare
+    );
+    if (!hasAnyKey) {
+      return res.status(400).json({
+        error:
+          "At least one LLM API key required. Add it in Settings. Free options: Groq, Gemini, Cerebras, SambaNova, Together AI, Mistral.",
+      });
     }
 
-    const allKeys = { gemini, groq, openai, anthropic, openrouter };
+    const allKeys = {
+      gemini,
+      groq,
+      openai,
+      anthropic,
+      openrouter,
+      mistral,
+      together,
+      cerebras,
+      sambanova,
+      cloudflare,
+      cloudflareAccountId,
+    };
 
     // Create ProviderManager with user's keys for fallback support
     const providerManager = createProviderManager(allKeys);

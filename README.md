@@ -2,7 +2,7 @@
 
 > Type less. Signhify everything.
 
-A self-improving, model-agnostic personal AI workspace with 7 specialized agents, persistent memory, skill generation, and multi-provider LLM support.
+A self-improving, model-agnostic personal AI workspace with 7 specialized agents, persistent memory, skill generation, and multi-provider LLM support with automatic free-tier fallback.
 
 **[Live Demo](https://signhify-ai.onrender.com)** · **[Report Bug](https://github.com/Warriorlegacy/signhify-ai/issues)** · **[Request Feature](https://github.com/Warriorlegacy/signhify-ai/issues)**
 
@@ -14,9 +14,11 @@ Signhify is an open-source AI workspace where 7 specialized agents collaborate t
 
 - **Self-Learning** — Agents detect reusable patterns from conversations and create skills
 - **Persistent Memory** — MongoDB-backed episodic memory, facts, and user profiles
-- **Multi-Provider BYOK** — OpenAI, Anthropic, Groq, Gemini, OpenRouter — no vendor lock-in
+- **Multi-Provider BYOK** — 10 LLM providers with automatic free-tier-first fallback
 - **Always-On** — Cron scheduling, proactive automation, 24/7 operation
 - **Multi-Channel** — Telegram and Discord bots with memory context injection
+- **IDE Integration** — VS Code/Cursor/WindSurf extension with inline completions
+- **Desktop App** — Native Electron app with system tray and global hotkeys
 - **Open Source** — MIT license, self-host, full data ownership
 
 ---
@@ -121,17 +123,69 @@ Open **http://localhost**
 
 ## Getting API Keys (BYOK)
 
-You need at least one LLM provider key. Free options:
+You need at least one LLM provider key. **Free options with automatic fallback:**
 
-| Provider      | Get Key At                                                           | Free Tier     |
-| ------------- | -------------------------------------------------------------------- | ------------- |
-| Google Gemini | [aistudio.google.com/apikey](https://aistudio.google.com/apikey)     | Yes           |
-| Groq          | [console.groq.com/keys](https://console.groq.com/keys)               | Yes           |
-| OpenRouter    | [openrouter.ai/keys](https://openrouter.ai/keys)                     | Yes           |
-| OpenAI        | [platform.openai.com/api-keys](https://platform.openai.com/api-keys) | Pay per token |
-| Anthropic     | [console.anthropic.com](https://console.anthropic.com/settings/keys) | Pay per token |
+| Provider      | Get Key At                                                                       | Free Tier     |
+| ------------- | -------------------------------------------------------------------------------- | ------------- |
+| Google Gemini | [aistudio.google.com/apikey](https://aistudio.google.com/apikey)                 | Yes           |
+| Groq          | [console.groq.com/keys](https://console.groq.com/keys)                           | Yes           |
+| Mistral AI    | [console.mistral.ai/keys](https://console.mistral.ai/keys)                       | Yes           |
+| Together AI   | [api.together.xyz/settings/api-keys](https://api.together.xyz/settings/api-keys) | Yes           |
+| Cerebras      | [cloud.cerebras.ai](https://cloud.cerebras.ai)                                   | Yes           |
+| SambaNova     | [cloud.sambanova.ai/apis](https://cloud.sambanova.ai/apis)                       | Yes           |
+| Cloudflare AI | [dash.cloudflare.com](https://dash.cloudflare.com)                               | Yes           |
+| OpenRouter    | [openrouter.ai/keys](https://openrouter.ai/keys)                                 | Yes           |
+| OpenAI        | [platform.openai.com/api-keys](https://platform.openai.com/api-keys)             | Pay per token |
+| Anthropic     | [console.anthropic.com](https://console.anthropic.com/settings/keys)             | Pay per token |
+
+**How it works:** Signhify automatically tries free providers first. If one fails or hits rate limits, it seamlessly falls back to the next best free model. Paid providers are only used as a last resort.
 
 Add keys in the web UI at **Settings → API Keys**, or set them in `server/.env` for scheduled tasks.
+
+---
+
+## VS Code Extension
+
+Install the Signhify AI extension for VS Code, Cursor, WindSurf, or Anti-Gravity:
+
+```bash
+cd packages/vscode-extension
+npm install
+npm run compile
+# Then press F5 to launch Extension Development Host
+```
+
+**Features:**
+
+- **Sidebar Chat** — Chat with agents without leaving your editor
+- **Inline Completions** — AI-powered code suggestions as you type
+- **Code Actions** — Right-click to explain, fix, or refactor code
+- **Global Hotkeys** — `Ctrl+Shift+A` (chat), `Ctrl+Shift+E` (explain), `Ctrl+Shift+F` (fix)
+
+Configure in **Settings → Extensions → Signhify AI**.
+
+---
+
+## Desktop App
+
+Native desktop app with system tray, global hotkeys, and auto-updates:
+
+```bash
+cd apps/desktop
+pnpm install
+pnpm dev              # Development mode
+pnpm build            # Build TypeScript
+pnpm package:win      # Package for Windows
+pnpm package:mac      # Package for macOS
+pnpm package:linux    # Package for Linux
+```
+
+**Features:**
+
+- **System Tray** — Minimize to tray, quick chat from menu
+- **Global Hotkeys** — `Ctrl+Shift+A` (focus + chat), `Ctrl+Shift+S` (quick chat)
+- **Auto-Updates** — Checks GitHub releases, prompts to install
+- **Native Dialogs** — Open/save files via IPC
 
 ---
 
@@ -271,26 +325,29 @@ signhify tui
 ```
 signhify-ai/
 ├── apps/
-│   └── web/                    # React + Vite + Tailwind frontend
+│   ├── web/                        # React + Vite + Tailwind frontend
+│   └── desktop/                    # Electron desktop app (system tray, auto-updates)
 ├── packages/
-│   ├── agents/                 # LLM adapters, provider manager, agent runners
-│   │   └── src/adapters/       # OpenAI, Anthropic, Groq, OpenRouter, Gemini
-│   ├── memory/                 # Embeddings, cosine similarity, in-memory store
-│   ├── types/                  # Shared TypeScript interfaces
-│   └── cli/                    # CLI tool (signhify command)
+│   ├── agents/                     # LLM adapters, provider manager, agent runners
+│   │   └── src/adapters/           # OpenAI, Anthropic, Groq, Gemini, OpenRouter,
+│   │                               # Mistral, Together, Cerebras, SambaNova, Cloudflare
+│   ├── memory/                     # Embeddings, cosine similarity, in-memory store
+│   ├── types/                      # Shared TypeScript interfaces
+│   ├── cli/                        # CLI tool (signhify command)
+│   └── vscode-extension/           # VS Code/Cursor/WindSurf extension
 ├── server/
 │   ├── src/
-│   │   ├── lib/                # Redis, logger, env validation, telemetry
-│   │   ├── middleware/          # Auth, BYOK, rate limiting, error handler
-│   │   ├── models/             # Mongoose schemas
-│   │   ├── routes/             # API routes
-│   │   └── services/           # MemoryManager, SkillRegistry, Scheduler
+│   │   ├── lib/                    # Redis, logger, env validation, telemetry
+│   │   ├── middleware/             # Auth, BYOK, rate limiting, error handler
+│   │   ├── models/                 # Mongoose schemas
+│   │   ├── routes/                 # API routes (auth, agents, memory, providers)
+│   │   └── services/               # MemoryManager, SkillRegistry, Scheduler
 │   └── .env.example
-├── docker-compose.yml          # MongoDB + Redis + App
-├── Dockerfile                  # Multi-stage production build
-├── INSTALL_WINDOWS.md          # Windows installation guide
-├── INSTALL_MAC.md              # macOS installation guide
-└── INSTALL_LINUX.md            # Linux installation guide
+├── docker-compose.yml              # MongoDB + Redis + App
+├── Dockerfile                      # Multi-stage production build
+├── INSTALL_WINDOWS.md              # Windows installation guide
+├── INSTALL_MAC.md                  # macOS installation guide
+└── INSTALL_LINUX.md                # Linux installation guide
 ```
 
 ---
@@ -369,6 +426,8 @@ pnpm clean            # Clean all dist folders
 pnpm --filter @signhify/server build
 pnpm --filter @signhify/agents test
 pnpm --filter @signhify/web typecheck
+pnpm --filter signhify-desktop dev        # Run desktop app
+pnpm --filter signhify compile            # Build VS Code extension
 ```
 
 ---
@@ -389,6 +448,8 @@ pnpm --filter @signhify/web typecheck
 
 ## Contributing
 
+We welcome contributions from the community! Please see our [Contributing Guidelines](CONTRIBUTING.md) for details.
+
 1. Fork the repo
 2. Create a feature branch (`git checkout -b feature/amazing-feature`)
 3. Commit your changes (`git commit -m 'Add amazing feature'`)
@@ -397,6 +458,71 @@ pnpm --filter @signhify/web typecheck
 
 ---
 
+## Security
+
+For security vulnerabilities, please see our [Security Policy](SECURITY.md).
+
+---
+
 ## License
 
 MIT License — see [LICENSE](LICENSE) for details.
+
+---
+
+## Credits
+
+### Creator & Godfather
+
+**Signhify AI** was conceived, designed, and built entirely by a single visionary:
+
+#### **Piyush Raj Singh** — Solo Creator & Godfather
+
+> _"Type less. Signhify everything."_
+
+Piyush Raj Singh single-handedly engineered every aspect of Signhify AI — from the multi-agent architecture and LLM provider abstraction layer, to the immersive 3D interface, real-time streaming pipeline, persistent memory system, and multi-platform gateway integrations. This is a one-person army operation that rivals what entire engineering teams build.
+
+##### Connect with the Creator
+
+| Platform                  | Link                                                                                                      |
+| ------------------------- | --------------------------------------------------------------------------------------------------------- |
+| **Instagram**             | [@piyushrajsingh.golu](https://www.instagram.com/piyushrajsingh.golu?igsh=eHFnNnhwZjJyYmo2&utm_source=qr) |
+| **LinkedIn**              | [piyushraj-singh](https://linkedin.com/in/piyushraj-singh)                                                |
+| **AI Engineering Studio** | [Signhify.lovable.app](https://signhify.lovable.app)                                                      |
+| **GitHub**                | [Warriorlegacy](https://github.com/Warriorlegacy)                                                         |
+
+##### What Piyush Built (Solo)
+
+- **7 Specialized AI Agents** — Nexus, Scribe, Scout, Forge, Vault, Herald, Vision
+- **10+ LLM Provider Integrations** — OpenAI, Anthropic, Gemini, Groq, Mistral, Together AI, Cerebras, SambaNova, OpenRouter, Cloudflare Workers AI
+- **Free-First Fallback Architecture** — Circuit breaker pattern ensuring 100% uptime across providers
+- **BYOK (Bring Your Own Key)** — Users use their own API keys, no vendor lock-in
+- **Persistent Memory System** — Episodic & semantic memory with embeddings and similarity search
+- **Real-Time Streaming** — SSE-based token streaming for instant responses
+- **3D Immersive Interface** — React Three Fiber powered UI
+- **Multi-Platform Gateways** — Telegram & Discord bot integrations
+- **Skill Auto-Generation** — AI generates reusable skills from conversation patterns
+- **Cron Scheduling** — Automated task execution with retry logic
+- **User Profiling** — Adaptive AI that learns user preferences over time
+- **Production Infrastructure** — Docker, CI/CD, Redis caching, MongoDB, Render + Vercel deployment
+- **VS Code Extension** — Code completion and chat integration
+- **Electron Desktop App** — Native desktop experience with system tray
+- **CLI Tool** — 924-line Commander CLI with TUI mode
+
+---
+
+## Acknowledgments
+
+- The open-source community for the incredible tools that made this possible
+- LangChain.js for the agent framework foundations
+- React, Vite, Express, MongoDB, and the entire Node.js ecosystem
+
+---
+
+<div align="center">
+
+**Built with ❤️ and relentless determination by Piyush Raj Singh**
+
+_"Type less. Signhify everything."_
+
+</div>

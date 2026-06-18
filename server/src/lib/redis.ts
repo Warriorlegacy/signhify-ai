@@ -115,9 +115,27 @@ export async function cacheInvalidatePattern(pattern: string): Promise<void> {
   const client = getRedis();
   if (!client) return;
   try {
-    const keys = await client.keys(pattern);
-    if (keys.length > 0) {
-      await client.del(...keys);
+    // Use SCAN instead of KEYS to avoid blocking Redis
+    let cursor = "0";
+    const keysToDelete: string[] = [];
+    do {
+      const [nextCursor, keys] = await client.scan(
+        cursor,
+        "MATCH",
+        pattern,
+        "COUNT",
+        100,
+      );
+      cursor = nextCursor;
+      keysToDelete.push(...keys);
+    } while (cursor !== "0");
+
+    if (keysToDelete.length > 0) {
+      // Delete in batches of 100 to avoid huge DEL commands
+      for (let i = 0; i < keysToDelete.length; i += 100) {
+        const batch = keysToDelete.slice(i, i + 100);
+        await client.del(...batch);
+      }
     }
   } catch {
     // silently fail

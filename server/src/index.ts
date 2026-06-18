@@ -25,6 +25,8 @@ import profileRoutes from "./routes/profile";
 import memoryRoutes from "./routes/memory";
 import telegramRoutes, { initTelegramBot } from "./routes/telegram";
 import discordRoutes, { initDiscordBot } from "./routes/discord";
+import providerRoutes from "./routes/providers";
+import completeRoutes from "./routes/complete";
 import { errorHandler } from "./middleware/errorHandler";
 import { initScheduler } from "./services/scheduler";
 import { initProfileRegeneration } from "./services/profile-regeneration";
@@ -36,7 +38,35 @@ const app = express();
 // Validate env on startup (fails fast on missing required vars)
 const env = validateEnv();
 
-app.use(helmet({ contentSecurityPolicy: false }));
+app.use(
+  helmet({
+    contentSecurityPolicy: {
+      directives: {
+        defaultSrc: ["'self'"],
+        scriptSrc: ["'self'", "'unsafe-inline'"],
+        styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
+        fontSrc: ["'self'", "https://fonts.gstatic.com"],
+        imgSrc: ["'self'", "data:", "blob:", "https:"],
+        connectSrc: [
+          "'self'",
+          "https://api.openai.com",
+          "https://api.anthropic.com",
+          "https://api.groq.com",
+          "https://generativelanguage.googleapis.com",
+          "https://openrouter.ai",
+          "https://api.mistral.ai",
+          "https://api.together.xyz",
+          "https://api.cerebras.ai",
+          "https://api.sambanova.ai",
+          "https://api.cloudflare.com",
+          "https://api.tavily.com",
+          "https://api.elevenlabs.io",
+        ],
+        workerSrc: ["'self'", "blob:"],
+      },
+    },
+  }),
+);
 app.use(cors({ origin: env.CORS_ORIGIN, credentials: true }));
 app.use(express.json({ limit: "10mb" }));
 app.use(cookieParser());
@@ -78,6 +108,8 @@ app.use("/api/profile", profileRoutes);
 app.use("/api/memory", memoryRoutes);
 app.use("/api/gateways/telegram", telegramRoutes);
 app.use("/api/gateways/discord", discordRoutes);
+app.use("/api/providers", providerRoutes);
+app.use("/api/agents/complete", completeRoutes);
 
 app.get("/api/health", (_req, res) => {
   res.json({
@@ -86,10 +118,13 @@ app.get("/api/health", (_req, res) => {
     version: "3.0.0",
     features: [
       "multi-llm",
+      "multi-provider-fallback",
+      "free-model-routing",
       "persistent-memory",
       "skill-generation",
       "scheduling",
       "provider-abstraction",
+      "circuit-breaker",
       "redis-cache",
     ],
   });

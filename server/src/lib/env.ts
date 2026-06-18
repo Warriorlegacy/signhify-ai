@@ -3,6 +3,9 @@ import { z } from "zod";
 const envSchema = z.object({
   // Required
   JWT_SECRET: z.string().min(32, "JWT_SECRET must be at least 32 characters"),
+  JWT_REFRESH_SECRET: z
+    .string()
+    .min(32, "JWT_REFRESH_SECRET must be at least 32 characters"),
   MONGODB_URI: z
     .string()
     .url("MONGODB_URI must be a valid MongoDB connection string"),

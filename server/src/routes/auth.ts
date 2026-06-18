@@ -4,10 +4,24 @@ import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import { User } from "../models/User";
 import { authMiddleware, AuthRequest, JWT_SECRET } from "../middleware/auth";
+import { rateLimit } from "../middleware/ratelimit";
 
 const router: Router = Router();
-const JWT_REFRESH_SECRET =
-  process.env.JWT_REFRESH_SECRET ?? "signhify-dev-refresh-secret";
+
+if (
+  !process.env.JWT_REFRESH_SECRET ||
+  process.env.JWT_REFRESH_SECRET.length < 32
+) {
+  throw new Error(
+    "FATAL: JWT_REFRESH_SECRET must be set and at least 32 characters. " +
+      "Generate one with: node -e \"console.log(require('crypto').randomBytes(64).toString('hex'))\"",
+  );
+}
+const JWT_REFRESH_SECRET = process.env.JWT_REFRESH_SECRET;
+
+// Strict rate limiters for auth endpoints (anti-brute-force)
+const authRateLimiter = rateLimit(10, 60000); // 10 requests per minute
+const registerRateLimiter = rateLimit(5, 300000); // 5 registrations per 5 minutes
 
 const RegisterSchema = z.object({
   email: z.string().email(),
@@ -20,7 +34,7 @@ const LoginSchema = z.object({
   password: z.string().min(1),
 });
 
-router.post("/register", async (req, res) => {
+router.post("/register", registerRateLimiter, async (req, res) => {
   const parsed = RegisterSchema.safeParse(req.body);
   if (!parsed.success) {
     return res.status(400).json({ error: parsed.error.flatten() });
@@ -56,7 +70,7 @@ router.post("/register", async (req, res) => {
     .json({ token, user: { id: user._id, email, displayName, plan: "free" } });
 });
 
-router.post("/login", async (req, res) => {
+router.post("/login", authRateLimiter, async (req, res) => {
   const parsed = LoginSchema.safeParse(req.body);
   if (!parsed.success) {
     return res.status(400).json({ error: parsed.error.flatten() });

@@ -2,13 +2,28 @@ node_modules/
 dist/
 .turbo/
 *.tsbuildinfo
+
+# ─── Environment & Secrets (NEVER commit these) ─────────────────────
 .env
-.env.local
-.env.*.local
-.env.render
+.env.*
+!.env.example
+*.env
+!server/.env.example
+atlas-credentials.env
+apikeys.md
+apikeys.*
+
+# ─── OS & Editor ────────────────────────────────────────────────────
 *.log
 .DS_Store
-coverage/
-apikeys.md
-atlas-credentials.env
+Thumbs.db
+*.swp
+*.swo
+*~
+.idea/
+.vscode/
 nul
+
+# ─── Build & Test ───────────────────────────────────────────────────
+coverage/
+*.tgz

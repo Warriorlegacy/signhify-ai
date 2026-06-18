@@ -47,10 +47,10 @@ describe("AuthStore", () => {
     expect(state.token).toBeNull();
   });
 
-  it("should load token from localStorage", () => {
+  it("should load token from localStorage", async () => {
     localStorage.setItem("signhify_token", "stored-token");
     const { loadFromStorage } = useAuthStore.getState();
-    loadFromStorage();
+    await loadFromStorage();
     const state = useAuthStore.getState();
     expect(state.token).toBe("stored-token");
     expect(state.isAuthenticated).toBe(true);

@@ -50,7 +50,14 @@ export interface MemoryNote {
   visibility: "private" | "team";
 }
 
-export type AgentType = "scribe" | "scout" | "forge" | "herald" | "vault" | "vision" | "general";
+export type AgentType =
+  | "scribe"
+  | "scout"
+  | "forge"
+  | "herald"
+  | "vault"
+  | "vision"
+  | "general";
 
 export interface AgentRequest {
   task: string;
@@ -66,7 +73,14 @@ export interface AgentResponse {
 }
 
 export interface StreamEvent {
-  type: "status" | "agent" | "token" | "error" | "done" | "skill-suggestion" | "citations";
+  type:
+    | "status"
+    | "agent"
+    | "token"
+    | "error"
+    | "done"
+    | "skill-suggestion"
+    | "citations";
   message?: string;
   agentType?: AgentType;
   token?: string;
@@ -90,15 +104,36 @@ export interface ApiError {
 
 // ─── LLM Provider Layer ──────────────────────────────────────────────
 
-export type ProviderId = "openai" | "anthropic" | "openrouter" | "groq" | "gemini" | "litellm";
+export type ProviderId =
+  | "openai"
+  | "anthropic"
+  | "openrouter"
+  | "groq"
+  | "gemini"
+  | "litellm"
+  | "mistral"
+  | "together"
+  | "cerebras"
+  | "sambanova"
+  | "cloudflare";
 
 export interface ProviderConfig {
   id: ProviderId;
   apiKey: string;
-  baseUrl?: string;          // for litellm/openrouter proxied endpoints
+  baseUrl?: string;
   defaultModel: string;
   fallbackModel?: string;
   models: string[];
+  isFree?: boolean;
+}
+
+export interface FreeModelEntry {
+  provider: ProviderId;
+  model: string;
+  label: string;
+  maxTokens: number;
+  requestsPerMin: number;
+  priority: number;
 }
 
 export interface LLMMessage {
