@@ -94,7 +94,7 @@ export function BackgroundScene() {
           powerPreference: "default",
           failIfMajorPerformanceCaveat: false,
         }}
-        frameloop="demand"
+        frameloop="always"
       >
         <AdaptiveDpr pixelated />
         <PerspectiveCamera makeDefault position={[0, 0, 9]} fov={42} />

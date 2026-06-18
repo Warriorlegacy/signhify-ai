@@ -44,8 +44,7 @@ export function AuthView() {
   if (showLanding) {
     return (
       <>
-        <Landing />
-        {/* Hidden auth trigger — Landing CTA navigates to / which triggers this component again */}
+        <Landing onGetStarted={() => setShowLanding(false)} />
       </>
     );
   }

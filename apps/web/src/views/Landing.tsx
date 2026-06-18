@@ -24,7 +24,6 @@ import {
   Shield,
   Eye,
 } from "lucide-react";
-import { useNavigate } from "react-router-dom";
 
 const AGENT_NAMES = [
   "Nexus",
@@ -271,8 +270,7 @@ function TestimonialCard({
   );
 }
 
-export function Landing() {
-  const navigate = useNavigate();
+export function Landing({ onGetStarted }: { onGetStarted: () => void }) {
 
   return (
     <div className="relative w-full min-h-screen overflow-hidden bg-obsidian text-white">
@@ -324,7 +322,7 @@ export function Landing() {
 
           <div className="flex items-center gap-3">
             <button
-              onClick={() => navigate("/")}
+              onClick={onGetStarted}
               className="btn-primary text-sm"
             >
               Get Started Free
@@ -386,7 +384,7 @@ export function Landing() {
             className="flex flex-col sm:flex-row items-center gap-4 mb-14"
           >
             <button
-              onClick={() => navigate("/")}
+              onClick={onGetStarted}
               className="group relative px-8 py-4 rounded-full overflow-hidden transition-all hover:scale-105 active:scale-100"
               style={{
                 background: "rgba(0, 229, 255, 0.1)",
@@ -621,7 +619,7 @@ export function Landing() {
               Free forever. Open source. No credit card required.
             </p>
             <button
-              onClick={() => navigate("/")}
+              onClick={onGetStarted}
               className="group relative px-10 py-4 rounded-full overflow-hidden transition-all hover:scale-105"
               style={{
                 background: "rgba(0, 229, 255, 0.1)",
