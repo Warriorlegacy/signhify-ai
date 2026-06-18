@@ -12,6 +12,7 @@ dist/
 atlas-credentials.env
 apikeys.md
 apikeys.*
+render.env
 
 # ─── OS & Editor ────────────────────────────────────────────────────
 *.log
