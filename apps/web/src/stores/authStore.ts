@@ -1,5 +1,6 @@
 import { create } from "zustand";
 import { useSettingsStore } from "./settingsStore";
+import { getApiUrl } from "../lib/api";
 
 interface User {
   id: string;
@@ -37,7 +38,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     // Clear API keys on logout to prevent credential leakage between user sessions
     useSettingsStore.getState().clearKeys();
     // Also clear refresh cookie via API
-    fetch("/api/auth/logout", { method: "POST", credentials: "include" }).catch(
+    fetch(getApiUrl("/auth/logout"), { method: "POST", credentials: "include" }).catch(
       () => {},
     );
     set({ token: null, user: null, isAuthenticated: false });
@@ -61,7 +62,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     // Verify token and fetch fresh user data from API
     set({ isLoading: true });
     try {
-      const res = await fetch("/api/auth/user", {
+      const res = await fetch(getApiUrl("/auth/user"), {
         headers: { Authorization: `Bearer ${token}` },
       });
       if (res.ok) {
@@ -95,7 +96,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
 
   refreshToken: async () => {
     try {
-      const res = await fetch("/api/auth/refresh", {
+      const res = await fetch(getApiUrl("/auth/refresh"), {
         method: "POST",
         credentials: "include",
       });

@@ -63,7 +63,7 @@ router.post("/register", registerRateLimiter, async (req, res) => {
   res.cookie("refresh_token", refreshToken, {
     httpOnly: true,
     secure: true,
-    sameSite: "strict",
+    sameSite: "none",
   });
   res
     .status(201)
@@ -92,7 +92,7 @@ router.post("/login", authRateLimiter, async (req, res) => {
   res.cookie("refresh_token", refreshToken, {
     httpOnly: true,
     secure: true,
-    sameSite: "strict",
+    sameSite: "none",
   });
   res.json({
     token,
@@ -133,7 +133,7 @@ router.post("/refresh", async (req, res) => {
     res.cookie("refresh_token", newRefresh, {
       httpOnly: true,
       secure: true,
-      sameSite: "strict",
+      sameSite: "none",
     });
     res.json({ token: newToken });
   } catch {
