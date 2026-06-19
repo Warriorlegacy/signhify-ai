@@ -17,6 +17,7 @@ export class GeminiAdapter implements LLMAdapter {
       model,
       apiKey: this.apiKey,
       streaming,
+      maxRetries: 0,
     });
   }
 

@@ -141,6 +141,7 @@ function buildProviderChain(
         model: models.groq,
         apiKey: apiKeys.groq,
         streaming: true,
+        maxRetries: 0,
       }),
       isFree: true,
     });
@@ -154,6 +155,7 @@ function buildProviderChain(
         model: models.cerebras,
         apiKey: apiKeys.cerebras,
         streaming: true,
+        maxRetries: 0,
         configuration: { baseURL: "https://api.cerebras.ai/v1" },
       } as any),
       isFree: true,
@@ -168,6 +170,7 @@ function buildProviderChain(
         model: models.sambanova,
         apiKey: apiKeys.sambanova,
         streaming: true,
+        maxRetries: 0,
         configuration: { baseURL: "https://api.sambanova.ai/v1" },
       } as any),
       isFree: true,
@@ -182,6 +185,7 @@ function buildProviderChain(
         model: models.together,
         apiKey: apiKeys.together,
         streaming: true,
+        maxRetries: 0,
         configuration: { baseURL: "https://api.together.xyz/v1" },
       } as any),
       isFree: true,
@@ -196,6 +200,7 @@ function buildProviderChain(
         model: models.mistral,
         apiKey: apiKeys.mistral,
         streaming: true,
+        maxRetries: 0,
         configuration: { baseURL: "https://api.mistral.ai/v1" },
       } as any),
       isFree: true,
@@ -210,6 +215,7 @@ function buildProviderChain(
         model: models.gemini,
         apiKey: apiKeys.gemini,
         streaming: true,
+        maxRetries: 0,
       }),
       isFree: true,
     });
@@ -223,6 +229,7 @@ function buildProviderChain(
         model: models.openrouter,
         apiKey: apiKeys.openrouter,
         streaming: true,
+        maxRetries: 0,
         configuration: {
           baseURL: "https://openrouter.ai/api/v1",
           defaultHeaders: {
@@ -243,6 +250,7 @@ function buildProviderChain(
         model: models.openai,
         apiKey: apiKeys.openai,
         streaming: true,
+        maxRetries: 0,
       }),
       isFree: false,
     });
@@ -255,6 +263,7 @@ function buildProviderChain(
         model: models.anthropic,
         apiKey: apiKeys.anthropic,
         streaming: true,
+        maxRetries: 0,
       }),
       isFree: false,
     });

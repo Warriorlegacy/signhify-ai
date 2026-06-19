@@ -65,6 +65,7 @@ export async function classifyIntent(
       model: "gemini-2.0-flash",
       apiKey,
       maxOutputTokens: 10,
+      maxRetries: 0,
     });
 
     const chain = CLASSIFICATION_PROMPT.pipe(model).pipe(
