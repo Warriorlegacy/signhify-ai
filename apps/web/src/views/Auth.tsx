@@ -5,6 +5,7 @@ import { useAuthStore } from "../stores/authStore";
 import { Landing } from "./Landing";
 import { BackgroundScene } from "../components/3d/Scene";
 import { motion, AnimatePresence } from "framer-motion";
+import { ArrowLeft, Loader2 } from "lucide-react";
 
 export function AuthView() {
   const [showLanding, setShowLanding] = useState(true);
@@ -50,45 +51,41 @@ export function AuthView() {
   }
 
   return (
-    <div className="relative flex min-h-screen w-full items-center justify-center bg-obsidian text-slate-200 overflow-hidden">
+    <div className="relative flex min-h-screen w-full items-center justify-center bg-obsidian text-foreground overflow-hidden">
       <BackgroundScene />
-
-      <div className="absolute inset-0 bg-obsidian/60 backdrop-blur-sm z-0"></div>
 
       <AnimatePresence>
         <motion.div
           initial={{ opacity: 0, scale: 0.95, y: 20 }}
           animate={{ opacity: 1, scale: 1, y: 0 }}
-          transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
-          className="relative z-10 w-full max-w-sm"
+          transition={{ duration: 0.5 }}
+          className="glass-panel relative z-10 w-full max-w-md rounded-3xl p-8 neon-glow"
         >
-          <div className="mb-8 text-center">
-            <h1 className="text-3xl font-display font-bold text-transparent bg-clip-text bg-gradient-to-r from-cyan-teal to-lucid-aqua drop-shadow-[0_0_15px_rgba(0,229,255,0.4)]">
-              Signhify
-            </h1>
-            <p className="mt-2 text-sm text-slate-400 font-light">
-              Type less. Orchestrate more.
-            </p>
+          <div className="mb-8 flex items-center gap-2 font-display text-lg font-bold">
+            <span className="h-2.5 w-2.5 rounded-full bg-primary neon-glow" />
+            SIGNHIFY<span className="text-primary">.AI</span>
           </div>
 
-          <form
-            onSubmit={handleSubmit}
-            className="space-y-5 rounded-2xl border border-slate-800/60 bg-slate-900/40 p-8 backdrop-blur-md shadow-2xl"
-          >
-            <h2 className="text-xl font-semibold text-slate-100">
-              {isLogin ? "Welcome back" : "Create your workspace"}
-            </h2>
+          <h1 className="text-2xl font-bold tracking-tight">
+            {!isLogin ? "Create your workspace" : "Welcome back"}
+          </h1>
+          <p className="mt-2 text-sm text-muted-foreground">
+            {!isLogin
+              ? "Spin up your self-learning AI workspace in seconds."
+              : "Sign in to continue to your agents."}
+          </p>
 
+          <form onSubmit={handleSubmit} className="mt-8 space-y-4">
             {!isLogin && (
               <div>
-                <label className="mb-1.5 block text-xs font-medium text-slate-400 uppercase tracking-wider">
+                <label className="mb-1.5 block text-xs font-medium text-muted-foreground">
                   Display Name
                 </label>
                 <input
                   type="text"
                   value={displayName}
                   onChange={(e) => setDisplayName(e.target.value)}
-                  className="w-full rounded-lg border border-slate-700/50 bg-slate-800/50 px-4 py-2.5 text-sm text-slate-200 outline-none focus:border-cyan-teal focus:ring-1 focus:ring-cyan-teal/50 transition-all placeholder-slate-500"
+                  className="input-base"
                   placeholder="Your name"
                   required
                 />
@@ -96,28 +93,28 @@ export function AuthView() {
             )}
 
             <div>
-              <label className="mb-1.5 block text-xs font-medium text-slate-400 uppercase tracking-wider">
+              <label className="mb-1.5 block text-xs font-medium text-muted-foreground">
                 Email
               </label>
               <input
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="w-full rounded-lg border border-slate-700/50 bg-slate-800/50 px-4 py-2.5 text-sm text-slate-200 outline-none focus:border-cyan-teal focus:ring-1 focus:ring-cyan-teal/50 transition-all placeholder-slate-500"
+                className="input-base"
                 placeholder="you@example.com"
                 required
               />
             </div>
 
             <div>
-              <label className="mb-1.5 block text-xs font-medium text-slate-400 uppercase tracking-wider">
+              <label className="mb-1.5 block text-xs font-medium text-muted-foreground">
                 Password
               </label>
               <input
                 type="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="w-full rounded-lg border border-slate-700/50 bg-slate-800/50 px-4 py-2.5 text-sm text-slate-200 outline-none focus:border-cyan-teal focus:ring-1 focus:ring-cyan-teal/50 transition-all"
+                className="input-base"
                 placeholder="••••••••"
                 minLength={8}
                 required
@@ -133,38 +130,34 @@ export function AuthView() {
             <button
               type="submit"
               disabled={loading}
-              className="w-full mt-2 group relative px-4 py-3 bg-cyan-teal/10 border border-cyan-teal/50 rounded-lg overflow-hidden transition-all hover:bg-cyan-teal/20 active:scale-[0.98] disabled:opacity-50 disabled:pointer-events-none"
+              className="shimmer-btn flex w-full items-center justify-center gap-2 rounded-xl bg-primary px-6 py-3.5 font-bold text-primary-foreground neon-glow transition-transform hover:scale-[1.02] disabled:opacity-70"
             >
-              <div className="absolute inset-0 bg-gradient-to-r from-cyan-teal/0 via-cyan-teal/10 to-cyan-teal/0 group-hover:translate-x-full duration-1000 transition-transform ease-in-out" />
-              <div className="relative flex items-center justify-center gap-2 font-semibold text-cyan-teal tracking-wide">
-                {loading
-                  ? "AUTHENTICATING..."
-                  : isLogin
-                    ? "SIGN IN"
-                    : "CREATE ACCOUNT"}
-              </div>
+              {loading && <Loader2 className="h-4 w-4 animate-spin" />}
+              {loading
+                ? "AUTHENTICATING..."
+                : isLogin
+                  ? "SIGN IN"
+                  : "CREATE ACCOUNT"}
             </button>
-
-            <div className="pt-2 text-center border-t border-slate-800/50 mt-4">
-              <p className="text-xs text-slate-500">
-                {isLogin ? "New here?" : "Already have an account?"}{" "}
-                <button
-                  type="button"
-                  onClick={() => setIsLogin(!isLogin)}
-                  className="text-cyan-teal hover:text-lucid-aqua transition-colors ml-1 font-medium"
-                >
-                  {isLogin ? "Create an account" : "Sign in"}
-                </button>
-              </p>
-            </div>
           </form>
+
+          <p className="mt-6 text-center text-sm text-muted-foreground">
+            {isLogin ? "New here?" : "Already have an account?"}{" "}
+            <button
+              type="button"
+              onClick={() => setIsLogin(!isLogin)}
+              className="font-semibold text-primary hover:underline ml-1"
+            >
+              {isLogin ? "Create account" : "Sign in"}
+            </button>
+          </p>
 
           <button
             onClick={() => setShowLanding(true)}
-            className="mt-4 w-full text-center text-xs transition-colors"
-            style={{ color: "rgba(148,163,184,0.4)" }}
+            className="mx-auto mt-6 flex items-center gap-1.5 text-xs text-muted-foreground transition-colors hover:text-foreground"
           >
-            ← Back to home
+            <ArrowLeft className="h-3.5 w-3.5" />
+            Back to home
           </button>
         </motion.div>
       </AnimatePresence>
