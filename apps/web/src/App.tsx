@@ -1,4 +1,4 @@
-import { useState, useEffect, lazy, Suspense } from "react";
+import { useState, useEffect, useRef, lazy, Suspense } from "react";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { useAuthStore } from "./stores/authStore";
 import { useSettingsStore } from "./stores/settingsStore";
@@ -46,18 +46,21 @@ function ProtectedRoute({ children }: { children: React.ReactNode }) {
 }
 
 function OnboardingGuard({ children }: { children: React.ReactNode }) {
-  const { hasKeys, loadKeys } = useSettingsStore();
   const [ready, setReady] = useState(false);
+  const [dismissed, setDismissed] = useState(false);
+  const hasKeysRef = useRef(false);
 
   useEffect(() => {
+    const { loadKeys } = useSettingsStore.getState();
     loadKeys();
+    hasKeysRef.current = useSettingsStore.getState().hasKeys;
     setReady(true);
   }, []);
 
   if (!ready) return <LoadingScreen />;
 
-  if (!hasKeys) {
-    return <Onboarding onComplete={() => {}} />;
+  if (!hasKeysRef.current && !dismissed) {
+    return <Onboarding onComplete={() => setDismissed(true)} />;
   }
 
   return <>{children}</>;

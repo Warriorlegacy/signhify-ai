@@ -28,3 +28,8 @@ nul
 # ─── Build & Test ───────────────────────────────────────────────────
 coverage/
 *.tgz
+
+# ─── Verification & Artifacts ───────────────────────────────────────
+artifacts/
+Screenshot Perfect/
+
