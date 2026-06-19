@@ -67,7 +67,23 @@ app.use(
     },
   }),
 );
-app.use(cors({ origin: env.CORS_ORIGIN, credentials: true }));
+const allowedOrigins = env.CORS_ORIGIN.split(",").map(o => o.trim());
+app.use(
+  cors({
+    origin: (origin, callback) => {
+      if (!origin) return callback(null, true);
+      if (allowedOrigins.indexOf(origin) !== -1 || allowedOrigins.includes("*")) {
+        return callback(null, true);
+      }
+      // Allow any Vercel deployment of Signhify AI (e.g. signhify-ai.vercel.app, signhify-ai-web.vercel.app)
+      if (/^https:\/\/signhify-ai(-[a-z0-9-]+)?\.vercel\.app$/.test(origin)) {
+        return callback(null, true);
+      }
+      return callback(new Error("Not allowed by CORS"));
+    },
+    credentials: true,
+  })
+);
 app.use(express.json({ limit: "10mb" }));
 app.use(cookieParser());
 
