@@ -216,26 +216,16 @@ router.post(
         );
       } else {
         // General fallback - use ProviderManager with memory-enriched context
-        try {
-          const model = providerManager.getLangChainModel("default");
-          const enrichedMessages = [];
-          if (enrichedContext) {
-            enrichedMessages.push({
-              role: "system",
-              content: `You are a helpful AI assistant. Use the following context to inform your response:\n\n${enrichedContext}`,
-            });
-          }
-          enrichedMessages.push({ role: "user", content: message });
-          fullContent = await streamResponse(model, enrichedMessages, onToken);
-        } catch {
-          // If ProviderManager fails, fall back to createLLM
-          const model = createLLM(allKeys, "default");
-          fullContent = await streamResponse(
-            model,
-            [{ role: "user", content: message }],
-            onToken,
-          );
+        const model = providerManager.getLangChainModel("default");
+        const enrichedMessages = [];
+        if (enrichedContext) {
+          enrichedMessages.push({
+            role: "system",
+            content: `You are a helpful AI assistant. Use the following context to inform your response:\n\n${enrichedContext}`,
+          });
         }
+        enrichedMessages.push({ role: "user", content: message });
+        fullContent = await streamResponse(model, enrichedMessages, onToken);
       }
 
       // Store episode in memory

@@ -97,15 +97,23 @@ class FallbackModel {
     for (const provider of this.providers) {
       if (this.failedProviders.has(provider.name)) continue;
 
+      let yieldedChunks = 0;
       try {
         const readableStream = await provider.model.stream(messages);
         for await (const chunk of readableStream) {
           yield chunk;
+          yieldedChunks++;
         }
         return;
       } catch (err: any) {
         lastError = err;
         this.failedProviders.add(provider.name);
+        
+        if (yieldedChunks > 0) {
+          console.warn(`[FallbackModel] ${provider.name} failed mid-stream: ${err.message}. Cannot fallback.`);
+          throw err;
+        }
+        
         console.warn(
           `[FallbackModel] ${provider.name} failed: ${err.message}. Trying next provider...`,
         );

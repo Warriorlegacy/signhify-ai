@@ -251,18 +251,22 @@ export class ProviderManager {
     return chain;
   }
 
-  /** Get a LangChain-compatible model (bridges to existing agent code) */
   getLangChainModel(spec: ModelSpec = "default"): any {
-    const providerId = this.getProviderChain()[0];
-    if (!providerId) {
+    const providerChain = this.getProviderChain();
+    if (providerChain.length === 0) {
       throw new Error(
         "No LLM providers available. Add an API key in Settings.",
       );
     }
-    const adapter = this.adapters.get(providerId);
-    const apiKey = (adapter as any)?.apiKey;
-    if (!apiKey) throw new Error(`No API key for provider "${providerId}"`);
-    const apiKeys: ApiKeys = { [providerId]: apiKey };
+    
+    const apiKeys: ApiKeys = {};
+    for (const providerId of providerChain) {
+      const adapter = this.adapters.get(providerId);
+      if (adapter && (adapter as any).apiKey) {
+        apiKeys[providerId] = (adapter as any).apiKey;
+      }
+    }
+    
     const { createLLM } = require("./shared");
     return createLLM(apiKeys, spec);
   }
@@ -282,11 +286,13 @@ export class ProviderManager {
       const adapter = this.adapters.get(entry.provider);
       if (!adapter) continue;
 
+      let yieldedTokens = 0;
       try {
         this.markHealthy(entry.provider);
         const stream = adapter.stream(messages, entry.model, options, onToken);
         for await (const token of stream) {
           yield { token, provider: entry.provider };
+          yieldedTokens++;
         }
         this.circuitBreaker.reset(entry.provider);
         return;
@@ -294,6 +300,12 @@ export class ProviderManager {
         lastError = err;
         this.markUnhealthy(entry.provider);
         this.circuitBreaker.recordFailure(entry.provider);
+        
+        if (yieldedTokens > 0) {
+          console.warn(`[ProviderManager] ${entry.provider} failed mid-stream. Cannot fallback.`);
+          throw err;
+        }
+        
         console.warn(
           `[ProviderManager] ${entry.provider} (${entry.model}) failed: ${err.message}. Trying next...`,
         );
