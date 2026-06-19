@@ -1,6 +1,7 @@
 import { useState, useCallback, useRef } from "react";
 import { KeyVault } from "../lib/keyVault";
 import { useSkillsStore } from "../stores/skillsStore";
+import { getApiUrl } from "../lib/api";
 
 export interface Source {
   title: string;
@@ -84,7 +85,7 @@ export function useAgentStream(serverUrl = "/api") {
       }
 
       try {
-        const response = await fetch(`${serverUrl}/agents/chat`, {
+        const response = await fetch(getApiUrl("/agents/chat"), {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
