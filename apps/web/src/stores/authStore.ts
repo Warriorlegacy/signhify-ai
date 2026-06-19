@@ -1,4 +1,5 @@
 import { create } from "zustand";
+import { useSettingsStore } from "./settingsStore";
 
 interface User {
   id: string;
@@ -33,6 +34,8 @@ export const useAuthStore = create<AuthState>((set, get) => ({
   logout: () => {
     localStorage.removeItem("signhify_token");
     localStorage.removeItem("signhify_user");
+    // Clear API keys on logout to prevent credential leakage between user sessions
+    useSettingsStore.getState().clearKeys();
     // Also clear refresh cookie via API
     fetch("/api/auth/logout", { method: "POST", credentials: "include" }).catch(
       () => {},
