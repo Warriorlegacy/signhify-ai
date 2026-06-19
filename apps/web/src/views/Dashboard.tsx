@@ -11,7 +11,6 @@ import { AgentsView } from "./Agents";
 import { MemoryView } from "./Memory";
 import { ScheduleView } from "./Schedule";
 import { SkillsView } from "./Skills";
-import { BackgroundScene } from "../components/3d/Scene";
 import { CommandPalette } from "../components/shared/CommandPalette";
 import {
   LayoutDashboard,
@@ -365,7 +364,7 @@ export function Dashboard() {
 
   return (
     <div className="relative flex h-screen w-full overflow-hidden bg-obsidian text-slate-200">
-      <BackgroundScene />
+      <div className="absolute inset-0 z-0 neural-mesh pointer-events-none" />
       <div
         className="absolute inset-0 z-0 pointer-events-none"
         style={{ background: "rgba(3,3,5,0.82)", backdropFilter: "blur(2px)" }}

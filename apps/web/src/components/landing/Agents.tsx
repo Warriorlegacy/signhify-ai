@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { agents } from "./agents-data";
+import { agents } from "./agents-list";
 
 export default function Agents() {
   const [active, setActive] = useState(agents[0].name);
