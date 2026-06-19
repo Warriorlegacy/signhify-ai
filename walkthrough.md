@@ -33,6 +33,11 @@ All features and priority fixes described in the implementation plan have been c
 ### 6. Scheduler Key Fallback
 - Updated `scheduler.ts` to fall back to server environment variables (`GEMINI_API_KEY`, `GROQ_API_KEY`, etc.) when no user-specific system key is supplied, ensuring cron tasks execute reliably.
 
+### 7. Landing/Auth page Browser Freezes on Mobile
+- Detected mobile browsers and viewport widths (`< 768px`) inside `apps/web/src/components/3d/Scene.tsx`.
+- Prevented the initialization of the ThreeJS WebGL canvas, particle fields, orbital rings, and expensive post-processing bloom shaders on mobile/tablet devices.
+- Fell back to the lightweight, CSS-only themed radial gradient backdrop, eliminating CPU/GPU crashes and tab freezes on phones.
+
 ---
 
 ## Verification
@@ -40,5 +45,5 @@ All features and priority fixes described in the implementation plan have been c
 The workspace compiles and builds cleanly:
 ```bash
 pnpm typecheck   # Completed successfully (0 errors)
-pnpm build       # Bundled apps/web and server packages successfully (built in 11.02s)
+pnpm build       # Bundled apps/web and server packages successfully (built in 25.05s)
 ```
