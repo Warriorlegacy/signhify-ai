@@ -1,6 +1,12 @@
 import { motion } from "framer-motion";
 
-export default function Footer({ onGetStarted }: { onGetStarted: () => void }) {
+export default function Footer({
+  onGetStarted,
+  onOpenCredits,
+}: {
+  onGetStarted: () => void;
+  onOpenCredits: () => void;
+}) {
   return (
     <footer id="opensource" className="mx-auto max-w-6xl px-6 pb-24">
       <motion.div
@@ -23,9 +29,16 @@ export default function Footer({ onGetStarted }: { onGetStarted: () => void }) {
           Get Started Free
         </button>
       </motion.div>
-      <p className="mt-10 text-center text-xs text-muted-foreground">
-        © {new Date().getFullYear()} Signhify.AI — Built for the open future.
-      </p>
+      <div className="mt-10 flex flex-col items-center justify-center gap-2 sm:flex-row sm:gap-4 text-xs text-muted-foreground">
+        <p>© {new Date().getFullYear()} Signhify.AI — Built for the open future.</p>
+        <span className="hidden sm:inline opacity-30">•</span>
+        <button
+          onClick={onOpenCredits}
+          className="transition-colors hover:text-foreground cursor-pointer bg-transparent border-none outline-none font-semibold text-primary"
+        >
+          Credits & Creator
+        </button>
+      </div>
     </footer>
   );
 }

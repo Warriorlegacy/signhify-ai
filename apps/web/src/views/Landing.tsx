@@ -4,14 +4,20 @@ import Features from "../components/landing/Features";
 import Agents from "../components/landing/Agents";
 import Footer from "../components/landing/Footer";
 
-export function Landing({ onGetStarted }: { onGetStarted: () => void }) {
+export function Landing({
+  onGetStarted,
+  onOpenCredits,
+}: {
+  onGetStarted: () => void;
+  onOpenCredits: () => void;
+}) {
   return (
     <>
-      <Navbar onGetStarted={onGetStarted} />
+      <Navbar onGetStarted={onGetStarted} onOpenCredits={onOpenCredits} />
       <Hero onGetStarted={onGetStarted} />
       <Features />
       <Agents />
-      <Footer onGetStarted={onGetStarted} />
+      <Footer onGetStarted={onGetStarted} onOpenCredits={onOpenCredits} />
     </>
   );
 }

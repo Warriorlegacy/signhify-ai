@@ -4,11 +4,13 @@ import { fetchApi } from "../lib/api";
 import { useAuthStore } from "../stores/authStore";
 import { Landing } from "./Landing";
 import { BackgroundScene } from "../components/3d/Scene";
+import { CreditsModal } from "../components/landing/CreditsModal";
 import { motion, AnimatePresence } from "framer-motion";
 import { ArrowLeft, Loader2 } from "lucide-react";
 
 export function AuthView() {
   const [showLanding, setShowLanding] = useState(true);
+  const [showCredits, setShowCredits] = useState(false);
   const [isLogin, setIsLogin] = useState(true);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -56,7 +58,10 @@ export function AuthView() {
             transition={{ duration: 0.4 }}
             className="relative z-10"
           >
-            <Landing onGetStarted={() => setShowLanding(false)} />
+            <Landing
+              onGetStarted={() => setShowLanding(false)}
+              onOpenCredits={() => setShowCredits(true)}
+            />
           </motion.main>
         ) : (
           <motion.div
@@ -159,17 +164,28 @@ export function AuthView() {
                 </button>
               </p>
 
-              <button
-                onClick={() => setShowLanding(true)}
-                className="mx-auto mt-6 flex items-center gap-1.5 text-xs text-muted-foreground transition-colors hover:text-foreground cursor-pointer bg-transparent border-none outline-none"
-              >
-                <ArrowLeft className="h-3.5 w-3.5" />
-                Back to home
-              </button>
+              <div className="mt-6 flex items-center justify-between border-t border-border pt-4">
+                <button
+                  onClick={() => setShowLanding(true)}
+                  className="flex items-center gap-1.5 text-xs text-muted-foreground transition-colors hover:text-foreground cursor-pointer bg-transparent border-none outline-none font-medium"
+                >
+                  <ArrowLeft className="h-3.5 w-3.5" />
+                  Back to home
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setShowCredits(true)}
+                  className="text-xs font-semibold text-primary hover:text-primary-foreground transition-colors cursor-pointer bg-transparent border-none outline-none"
+                >
+                  Credits & Creator
+                </button>
+              </div>
             </div>
           </motion.div>
         )}
       </AnimatePresence>
+
+      <CreditsModal isOpen={showCredits} onClose={() => setShowCredits(false)} />
     </div>
   );
 }

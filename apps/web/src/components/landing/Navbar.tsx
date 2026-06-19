@@ -1,6 +1,12 @@
 import { motion } from "framer-motion";
 
-export default function Navbar({ onGetStarted }: { onGetStarted: () => void }) {
+export default function Navbar({
+  onGetStarted,
+  onOpenCredits,
+}: {
+  onGetStarted: () => void;
+  onOpenCredits: () => void;
+}) {
   return (
     <motion.header
       initial={{ y: -40, opacity: 0 }}
@@ -20,6 +26,12 @@ export default function Navbar({ onGetStarted }: { onGetStarted: () => void }) {
           <a href="#features" className="transition-colors hover:text-foreground">Features</a>
           <a href="#agents" className="transition-colors hover:text-foreground">Agents</a>
           <a href="#opensource" className="transition-colors hover:text-foreground">Open Source</a>
+          <button
+            onClick={onOpenCredits}
+            className="transition-colors hover:text-foreground cursor-pointer bg-transparent border-none outline-none font-body text-sm font-medium text-muted-foreground"
+          >
+            Credits
+          </button>
         </div>
         <button
           onClick={onGetStarted}
