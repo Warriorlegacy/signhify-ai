@@ -38,6 +38,11 @@ All features and priority fixes described in the implementation plan have been c
 - Prevented the initialization of the ThreeJS WebGL canvas, particle fields, orbital rings, and expensive post-processing bloom shaders on mobile/tablet devices.
 - Fell back to the lightweight, CSS-only themed radial gradient backdrop, eliminating CPU/GPU crashes and tab freezes on phones.
 
+### 8. Landing Page Scroll Lock Resolution
+- Removed `overflow-hidden` from the `body` element in `apps/web/index.html` and changed `overflow: hidden;` to `overflow-x: hidden;` in `apps/web/src/index.css` to allow normal vertical scrolling.
+- Converted `BackgroundScene` and `LoadingFallback` wrappers in `apps/web/src/components/3d/Scene.tsx` from `absolute` to `fixed` positioning, so the interactive WebGL canvas remains fixed as the viewport backdrop while content scrolls.
+- Verified that layout locking is preserved inside `/app` Dashboard views which run in a dedicated `h-screen overflow-hidden` grid.
+
 ---
 
 ## Verification
@@ -45,5 +50,5 @@ All features and priority fixes described in the implementation plan have been c
 The workspace compiles and builds cleanly:
 ```bash
 pnpm typecheck   # Completed successfully (0 errors)
-pnpm build       # Bundled apps/web and server packages successfully (built in 25.05s)
+pnpm build       # Bundled apps/web and server packages successfully (built in 17.08s)
 ```

@@ -4,7 +4,7 @@ const ThreeScene = lazy(() => import("./ThreeScene"));
 
 function LoadingFallback() {
   return (
-    <div className="absolute inset-0 z-0 pointer-events-none select-none bg-obsidian">
+    <div className="fixed inset-0 z-0 pointer-events-none select-none bg-obsidian">
       <div
         className="absolute inset-0"
         style={{
@@ -76,7 +76,7 @@ export function BackgroundScene() {
   }
 
   return (
-    <div className="absolute inset-0 z-0 pointer-events-none select-none bg-obsidian">
+    <div className="fixed inset-0 z-0 pointer-events-none select-none bg-obsidian">
       <Suspense fallback={<LoadingFallback />}>
         <ThreeScene isSimplified={isSimplified} />
       </Suspense>

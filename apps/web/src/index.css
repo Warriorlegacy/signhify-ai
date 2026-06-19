@@ -91,7 +91,7 @@ body {
   font-family: var(--font-body);
   background-color: var(--color-obsidian);
   color: var(--color-text-primary);
-  overflow: hidden;
+  overflow-x: hidden;
 }
 
 /* ─── Custom Scrollbar ───────────────────────────────────────── */
