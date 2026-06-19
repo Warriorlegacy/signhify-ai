@@ -43,6 +43,11 @@ All features and priority fixes described in the implementation plan have been c
 - Converted `BackgroundScene` and `LoadingFallback` wrappers in `apps/web/src/components/3d/Scene.tsx` from `absolute` to `fixed` positioning, so the interactive WebGL canvas remains fixed as the viewport backdrop while content scrolls.
 - Verified that layout locking is preserved inside `/app` Dashboard views which run in a dedicated `h-screen overflow-hidden` grid.
 
+### 9. Interactive Credits Modal Integration
+- Created a gorgeous `CreditsModal` component in `apps/web/src/components/landing/CreditsModal.tsx` mapping the achievements and socials outlined in `CREDITS.md`.
+- Integrated "Credits" links into the floating header `Navbar` and the responsive `Footer`, as well as adding a fallback button inside the login card footer.
+- Added animated transitions using Framer Motion (`AnimatePresence`) for a premium UI feel.
+
 ---
 
 ## Verification
@@ -50,5 +55,5 @@ All features and priority fixes described in the implementation plan have been c
 The workspace compiles and builds cleanly:
 ```bash
 pnpm typecheck   # Completed successfully (0 errors)
-pnpm build       # Bundled apps/web and server packages successfully (built in 17.08s)
+pnpm build       # Bundled apps/web and server packages successfully (built in 15.66s)
 ```
